@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Events
+{% endblock %}
+
+{% block main %}
+    <h2>Registered Events</h2>
+    <table class="table table-striped text-left">
+        <thead>
+            <tr><b>
+                <th class="event">Event</th>
+                <th class="shift">Shift</th>
+                <th class="value">Value</th>
+                <th class="withdraw"></th>
+            </b></tr>
+        </thead>
+        <tbody>
+            {% for event in registered %}
+                <tr>
+                    <td class="event">{{ event.name }}</td>
+                    {% if event.shift == 3 %}
+                        <td class="shift">1 + 2</td>
+                    {% else %}
+                        <td class="shift">{{ event.shift }}</td>
+                    {% endif %}
+                    <td class="value">{{ event.value }}</td>
+                    <td class="withdraw"></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Requested</h2>
+    <table class="table table-striped text-left">
+        <thead>
+            <tr><b>
+                <th class="event">Event</th>
+                <th class="shift">Shift</th>
+                <th class="value">Value</th>
+                <th class="withdraw"></th>
+            </b></tr>
+        </thead>
+        <tbody>
+            {% for event in requested %}
+                <tr>
+                    <td class="event">{{ event.name }}</td>
+                    {% if event.shift == 3 %}
+                        <td class="shift">1 + 2</td>
+                    {% else %}
+                        <td class="shift">{{ event.shift }}</td>
+                    {% endif %}
+                    <td class="value">{{ event.value }}</td>
+                    <td class="withdraw"><a href="/withdraw/{{ event.code }}">Withdraw</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Available Events</h2>
+    <table class="table table-striped text-left">
+        <thead>
+            <tr><b>
+                <th class="event">Event</th>
+                <th class="shift">Shift</th>
+                <th class="value">Value</th>
+                <th class="signup"></th>
+            </b></tr>
+        </thead>
+        <tbody>
+            {% for event in available %}
+                <tr>
+                    <td class="event">{{ event.name }}</td>
+                    {% if event.shift == 3 %}
+                        <td class="shift">1 + 2</td>
+                    {% else %}
+                        <td class="shift">{{ event.shift }}</td>
+                    {% endif %}
+                    <td class="value">{{ event.value }}</td>
+                    <td class="signup"><a href="/signup/{{ event.code }}/{{ event.shift }}">Sign up</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Completed Events</h2>
+    <table class="table table-striped text-left">
+        <thead>
+            <tr><b>
+                <th class="event">Event</th>
+                <th class="shift">Shift</th>
+                <th class="value">Value</th>
+                <th class="empty"></th>
+            </b></tr>
+        </thead>
+        <tbody>
+            {% for event in completed %}
+                <tr>
+                    <td class="event">{{ event.name }}</td>
+                    {% if event.shift == 3 %}
+                        <td class="shift">1 + 2</td>
+                    {% else %}
+                        <td class="shift">{{ event.shift }}</td>
+                    {% endif %}
+                    <td class="value">{{ event.value }}</td>
+                    <td class="empty completed">Completed!</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"><b>TOTAL EVENTS</b></td>
+                <td class="value"><b>{{ total }}</b></td>
+                <td class="empty"></td>
+            </tr>
+        </tfoot>
+    </table>
+{% endblock %}

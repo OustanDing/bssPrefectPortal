@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Files
+{% endblock %}
+
+{% block main %}
+    <h1>Files</h1>
+    {% for file in files %}
+        <a href="{{ file.link }}">{{ file.name }}</a><br>
+    {% endfor %}
+{% endblock %}

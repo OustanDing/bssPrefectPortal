@@ -1,0 +1,48 @@
+{% extends "layoute2.html" %}
+
+{% block title %}
+    Approved Signups
+{% endblock %}
+
+{% block main %}
+    {% for event in confirmed %}
+    <h4>{{ event.title }}</h4>
+    <div class="table-responsive">
+        <table class="table table-striped text-left">
+            <thead>
+                <tr>
+                    <th class="viewname">Name</th>
+                    <th class="viewgroup">Group</th>
+                    <th class="viewcredits">Events completed</th>
+                    <th class="viewemail">Email</th>
+                    <th class="viewhome">Home Phone</th>
+                    <th class="viewcell">Cell Phone</th>
+                    <th class="viewdietary">Dietary Restrictions</th>
+                    <th class="viewshift">Shift</th>
+                    <th class="viewvalue">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for eventRequest in event.signups %}
+                    <tr>
+                        <td class="viewname">{{ eventRequest.prefect }}</td>
+                        <td class="viewgroup">{{ eventRequest.group }}</td>
+                        <td class="viewcredits">{{ eventRequest.credits }}</td>
+                        <td class="viewemail">{{ eventRequest.email }}</td>
+                        <td class="viewhome">{{ eventRequest.home }}</td>
+                        <td class="viewcell">{{ eventRequest.cell }}</td>
+                        <td class="viewdietary">{{ eventRequest.dietary }}</td>
+                        <td class="viewshift">{% if eventRequest.shift == 3 %}
+                            1 + 2
+                        {% else %}
+                            {{ eventRequest.shift }}
+                        {% endif %}</td>
+                        <td class="viewvalue">{{ eventRequest.value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% endfor %}
+{% endblock %}

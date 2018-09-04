@@ -1,0 +1,65 @@
+{% extends "layoute.html" %}
+
+{% block title %}
+    Files
+{% endblock %}
+
+{% block main %}
+    <h4>Add a file</h4>
+    <form action="/filese" method="POST">
+        Name: <input autocomplete="off" autofocus class="form-control" type="text" name="name" placeholder="File Name" ><br>
+        Link: <input autocomplete="off" autofocus class="form-control" type="text" name="link" placeholder="File Link" ><br>
+        Visible?
+        <div class="checked">
+            <label><input type="checkbox" name="visible" value="yes"></label>
+        </div>
+        <button class="btn btn-primary" type="submit">Add</button>
+    </form>
+    <br>
+
+    <h4>Visible Files ({{ totalvis }})</h4>
+    <table class="table table-striped text-left">
+        <thead>
+            <tr>
+                <th class="filename">Name</th>
+                <th class="filelink">Link</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in visibleFiles %}
+                <tr>
+                    <td class="filename">{{ file.name }}</td>
+                    <td class="filelink"><a href="{{ file.link }}">{{ file.link[:40] }}
+                        {% if file.link|length > 40 %}...{% endif %}</a><br></td>
+                    <td><a href="/hide/{{ file.id }}">Hide</a></td>
+                    <td><a href="/remove/{{ file.id }}">Remove</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h4>Hidden Files ({{ totalinvis }})</h4>
+    <table class="table table-striped text-left">
+        <thead>
+            <tr>
+                <th class="filename">Name</th>
+                <th class="filelink">Link</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in invisibleFiles %}
+                <tr>
+                    <td class="filename">{{ file.name }}</td>
+                    <td class="filelink"><a href="{{ file.link }}">{{ file.link[:40] }}{% if file.link|length > 40 %}...{% endif %}</a><br></td>
+                    <td><a href="/show/{{ file.id }}">Show</a></td>
+                    <td><a href="/remove/{{ file.id }}">Remove</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

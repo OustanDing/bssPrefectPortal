@@ -1,0 +1,119 @@
+{% extends "layoute.html" %}
+
+{% block title %}
+    Events
+{% endblock %}
+
+{% block main %}
+    <h4>Add an event</h4>
+    <form action="/eventse" method="POST">
+        Name: <input autocomplete="off" autofocus class="form-control" type="text" name="name" placeholder="Event Name" ><br>
+        Shifts:
+        <br>
+        <input autocomplete="off" class="form-control" type="text" name="shift1" placeholder="Shift 1 Event Value" ><br>
+        <input autocomplete="off" class="form-control" type="text" name="shift2" placeholder="Shift 2 Event Value (Optional)" ><br>
+        Enable Both Shifts?
+        <div class="checked">
+            <label><input type="checkbox" name="shift3" value="yes"></label>
+        </div>
+        <!--
+        <input autocomplete="off" class="form-control" type="text" name="shift3" placeholder="Both Shifts Event Value (Optional)" ><br>
+        -->
+        Visible?
+        <div class="checked">
+            <label><input type="checkbox" name="visible" value="yes"></label>
+        </div>
+        <button class="btn btn-primary" type="submit">Add</button>
+    </form>
+    <br>
+
+    <h4>Visible Events ({{ totalvis }})</h4>
+    <table class="table table-striped text-left">
+        <thead>
+            <tr>
+                <th class="eventname">Name</th>
+                <th class="eventshift">Shift</th>
+                <th class="eventvalue">Value</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in visibleEvents %}
+                <tr>
+                    <td class="eventname">{{ event.eventName }}</td>
+                    <td class="eventshift">{% if event.shift == 3 %}
+                        1 + 2
+                    {% else %}
+                        {{ event.shift }}
+                    {% endif %}</td>
+                    <td class="eventvalue">{{ event.value }}</td>
+                    <td class="eventhide"><a href="/eventhide/{{ event.eventCode }}/{{ event.shift }}">Hide</a></td>
+                    <td class="eventremove"><a href="/eventremove/{{ event.eventCode }}/{{ event.shift }}">Remove</a></td>
+                    <td class="eventdone"><a href="/eventdone/{{ event.eventCode }}/{{ event.shift }}">Done</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h4>Hidden Events ({{ totalinvis }})</h4>
+    <table class="table table-striped text-left">
+        <thead>
+            <tr>
+                <th class="eventname">Name</th>
+                <th class="eventshift">Shift</th>
+                <th class="eventvalue">Value</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in invisibleEvents %}
+                <tr>
+                    <td class="eventname">{{ event.eventName }}</td>
+                    <td class="eventshift">{% if event.shift == 3 %}
+                        1 + 2
+                    {% else %}
+                        {{ event.shift }}
+                    {% endif %}</td>
+                    <td class="eventvalue">{{ event.value }}</td>
+                    <td class="eventshow"><a href="/eventshow/{{ event.eventCode }}/{{ event.shift }}">Show</a></td>
+                    <td class="eventremove"><a href="/eventremove/{{ event.eventCode }}/{{ event.shift }}">Remove</a></td>
+                    <td class="eventdone"></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h4>Finished Events ({{ totalfinished }})</h4>
+    <table class="table table-striped text-left">
+        <thead>
+            <tr>
+                <th class="eventname">Name</th>
+                <th class="eventshift">Shift</th>
+                <th class="eventvalue">Value</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in finishedEvents %}
+                <tr>
+                    <td class="eventname">{{ event.eventName }}</td>
+                    <td class="eventshift">{% if event.shift == 3 %}
+                        1 + 2
+                    {% else %}
+                        {{ event.shift }}
+                    {% endif %}</td>
+                    <td class="eventvalue">{{ event.value }}</td>
+                    <td class="eventshow"></td>
+                    <td class="eventremove"></td>
+                    <td class="eventundone"><a href="/eventundone/{{ event.eventCode }}/{{ event.shift }}">"Undone"</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

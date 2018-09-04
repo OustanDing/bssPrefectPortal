@@ -1,0 +1,42 @@
+{% extends "layoutapprovee.html" %}
+
+{% block title %}
+    Pending Signups
+{% endblock %}
+
+{% block main %}
+    <h4>Pending Signups ({{ totalreq }})</h4>
+    <table class="table table-striped text-left">
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Name</th>
+                <th>Group</th>
+                <th>Events completed</th>
+                <th>Shift</th>
+                <th>Value</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for eventRequest in requested %}
+                <tr>
+                    <td>{{ eventRequest.eventName }}</td>
+                    <td>{{ eventRequest.prefect }}</td>
+                    <td>{{ eventRequest.group }}</td>
+                    <td>{{ eventRequest.credits }}</td>
+                    <td>{% if eventRequest.shift == 3 %}
+                        1 + 2
+                    {% else %}
+                        {{ eventRequest.shift }}
+                    {% endif %}</td>
+                    <td>{{ eventRequest.value }}</td>
+                    <td><a href="/approve/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}/requestede">Approve</a></td>
+                    <td><a href="/decline/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}/requestede">Decline</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

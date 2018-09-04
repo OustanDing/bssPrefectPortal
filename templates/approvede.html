@@ -1,0 +1,44 @@
+{% extends "layoutapprovee.html" %}
+
+{% block title %}
+    Approved Signups
+{% endblock %}
+
+{% block main %}
+    <h4>Approved Signups ({{ totalapp }})</h4>
+    <table class="table table-striped text-left">
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Name</th>
+                <th>Group</th>
+                <th>Events completed</th>
+                <th>Shift</th>
+                <th>Value</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for eventRequest in approved %}
+                <tr>
+                    <td>{{ eventRequest.eventName }}</td>
+                    <td>{{ eventRequest.prefect }}</td>
+                    <td>{{ eventRequest.group }}</td>
+                    <td>{{ eventRequest.credits }}</td>
+                    <td>{% if eventRequest.shift == 3 %}
+                        1 + 2
+                    {% else %}
+                        {{ eventRequest.shift }}
+                    {% endif %}</td>
+                    <td>{{ eventRequest.value }}</td>
+                    <td><a href="/unapprove/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}">Unapprove</a></td>
+                    <td><a href="/decline/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}/approvede">Decline</a></td>
+                    <td><a href="/confirm/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}">Confirm</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

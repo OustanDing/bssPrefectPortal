@@ -1,0 +1,83 @@
+p {
+    margin: 0px;
+}
+
+#yourgroup {
+    margin-bottom: 5px;
+}
+
+.category, .total {
+    font-weight: bold;
+}
+
+.margin {
+    margin-bottom: 18px;
+}
+
+.smallMargin {
+    margin-bottom: 12px;
+}
+
+.green, .completed {
+    color: green;
+}
+
+.red {
+    color: red;
+}
+
+.name {
+    width: 50%;
+}
+
+.shift {
+    width: 15%;
+}
+
+.value {
+    width: 15%;
+}
+
+.withdraw, .signup, .empty {
+    width: 20%;
+}
+
+.filename {
+    width: 25%;
+}
+
+.filelink {
+    width: 45%;
+}
+
+.eventname {
+    width: 50%;
+}
+
+.eventshift, .eventvalue, .eventhide, .eventremove, .eventdone, .eventshow {
+    width: 10%;
+}
+
+.viewname {
+    width: 14%;
+}
+
+.viewgroup {
+    width: 6%;
+}
+
+.viewcredits {
+    width: 9%;
+}
+
+.viewemail {
+    width: 16%;
+}
+
+.viewhome, .viewcell {
+    width: 8%;
+}
+
+.viewdietary {
+    width: 27%;
+}

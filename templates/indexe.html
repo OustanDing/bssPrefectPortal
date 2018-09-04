@@ -1,0 +1,119 @@
+{% extends "layoute2.html" %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block main %}
+    <h1>{{ prefect.name }}</h1>
+    <div class="row">
+        <div class="col-md-4"><h6>{{ prefect.position }}</h6></div>
+        <div class="col-md-8 text-right">
+            <!--
+            Show:
+            <form action="/indexe" method="POST">
+                <select class="form-control" name="grade">
+                    <option value="11" {% if prefect.grade == 11 %} selected="selected" {% endif %}>11</option>
+                    <option value="12" {% if prefect.grade == 12 %} selected="selected" {% endif %}>12</option>
+                </select>
+            </form>
+            -->
+        </div>
+    </div>
+    <br>
+    <div class="row" id="yourgroup">
+        <div class="col-md-8"><h4>Your group:</h4></div>
+        <div class="col-md-4 text-right"><a href="/editprefecte" class="btn btn-primary">Edit</a></div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped text-left">
+            <thead>
+                <tr><b>
+                    <th>Name</th>
+                    <th>Events</th>
+                    <th>Gender</th>
+                    <th>Grade</th>
+                    <th>Size</th>
+                    <th>Email</th>
+                    <th>Home Phone</th>
+                    <th>Cell Phone</th>
+                    <th class="text-nowrap">Dietary Restrictions</th>
+                    <th>Status</th>
+                    <th>Completed</th>
+                    <th>Upcoming</th>
+                </b></tr>
+            </thead>
+            <tbody>
+                {% for prefect in prefects %}
+                    <tr>
+                        <td class="text-nowrap">{{ prefect.name }}</td>
+                        <td>{{ prefect.credits }}</td>
+                        <td>{{ prefect.gender }}</td>
+                        <td>{{ prefect.grade }}</td>
+                        <td>{{ prefect.size }}</td>
+                        <td>{{ prefect.email }}</td>
+                        <td class="text-nowrap">{{ prefect.home }}</td>
+                        <td class="text-nowrap">{{ prefect.cell }}</td>
+                        <td class="text-nowrap">{{ prefect.dietary }}</td>
+                        <td class="text-nowrap">{{ prefect.status }}</td>
+                        <td class="text-nowrap">
+                            <ul>
+                                {% for event in prefect.completed %}
+                                    {% if event[1] == 3 %}
+                                        <li>{{ event[0] }} (Shifts 1 + 2, {{ event[2] }} events)</li>
+                                    {% else %}
+                                        <li>{{ event[0] }} (Shift {{ event[1] }}, {{ event[2] }} events)</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td class="text-nowrap">
+                            <ul>
+                                {% for event in prefect.upcoming %}
+                                    {% if event[1] == 3 %}
+                                        <li>{{ event[0] }} (Shifts 1 + 2, {{ event[2] }} events)</li>
+                                    {% else %}
+                                        <li>{{ event[0] }} (Shift {{ event[1] }}, {{ event[2] }} events)</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="total">
+                    <td colspan="2">TOTAL</td>
+                    <td>
+                        M: {{ total.male }}<br>
+                        F: {{ total.female }}
+                    </td>
+                    <td>
+                        11: {{ total.eleven }}<br>
+                        12: {{ total.twelve }}
+                    </td>
+                    <td>
+                        XS: {{ total.xs }}<br>
+                        S: {{ total.s }}<br>
+                        M: {{ total.m }}<br>
+                        L: {{ total.l }}<br>
+                        XL: {{ total.xl }}
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        New: {{ total.new }}<br>
+                        Returning: {{ total.returning }}
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <br>
+
+
+{% endblock %}

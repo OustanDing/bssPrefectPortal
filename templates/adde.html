@@ -1,0 +1,38 @@
+{% extends "layoute.html" %}
+
+{% block title %}
+    Add Prefect
+{% endblock %}
+
+{% block main %}
+    <form action="/adde" method="POST" name="addPrefect">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="name" placeholder="Full Name" type="text" onblur="autoUserPass(this.form)" />
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="username" placeholder="Username (firstname.lastname by default)" type="text" />
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="password" placeholder="Password (1234 by default)" type="password" />
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="confirm" placeholder="Confirm Password" type="password" />
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="leader">
+                <option value="" disabled>Group</option>
+                {% for leader in leaders %}
+                    <option value="{{ leader }}" {% if leader == currentGroup %}selected{% endif %}>{{ leader }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="grade">
+                <option value="" selected disabled>Grade</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Add</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Profile
+{% endblock %}
+
+{% block main %}
+
+    <form action="/edit" method="POST" name="edit">
+        <div class="row">
+            <div class="col-md-8"><h1>{{ prefect.name }}</h1></div>
+            <div class="col-md-4 text-right">
+                <button class="btn btn-success" type="submit">Save</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 category">Grade</div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <select class="form-control" name="grade">
+                        <option value="11" {% if prefect.grade == '11' %} selected="selected" {% endif %}>11</option>
+                        <option value="12" {% if prefect.grade == '12' %} selected="selected" {% endif %}>12</option>
+                    </select>
+                    <!--
+                    <input autocomplete="off" class="form-control" type="text" name="grade" value="{{ prefect.grade }}" >
+                    -->
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 category">Gender</div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <select class="form-control" name="gender">
+                        <option value="Male" {% if prefect.gender == 'Male' %} selected="selected" {% endif %}>Male</option>
+                        <option value="Female" {% if prefect.gender == 'Female' %} selected="selected" {% endif %}>Female</option>
+                    </select>
+                    <!--
+                    <input autocomplete="off" class="form-control" type="text" name="gender" value="{{ prefect.gender }}" >
+                    -->
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6"><span class="category">Dietary Restrictions </span>(Please list)</div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <input autocomplete="off" class="form-control" type="text" name="dietary" value="{{ prefect.dietary }}" >
+                </div>
+            </div>
+        </div>
+        <div class="row margin">
+            <div class="col-md-6 category">Group Leader</div>
+            <div class="col-md-6">{{ prefect.group }}</div>
+        </div>
+        <div class="row margin">
+            <div class="col-md-6 category">Clothing Size</div>
+            <div class="col-md-6">
+                <select class="form-control" name="size">
+                    <option value="XS" {% if prefect.size == 'XS' %} selected="selected" {% endif %}>XS</option>
+                    <option value="S" {% if prefect.size == 'S' %} selected="selected" {% endif %}>S</option>
+                    <option value="M" {% if prefect.size == 'M' %} selected="selected" {% endif %}>M</option>
+                    <option value="L" {% if prefect.size == 'L' %} selected="selected" {% endif %}>L</option>
+                    <option value="XL" {% if prefect.size == 'XL' %} selected="selected" {% endif %}>XL</option>
+                </select>
+                <!--
+                <div class="form-group">
+                    <input autocomplete="off" class="form-control" type="text" name="size" value="{{ prefect.size }}" >
+                </div>
+                -->
+            </div>
+        </div>
+        <div class="row margin">
+            <div class="col-md-6 category">Status</div>
+            <div class="col-md-6">
+                <select class="form-control" name="status">
+                    <option value="New" {% if prefect.status == 'New' %} selected="selected" {% endif %}>New</option>
+                    <option value="Returning" {% if prefect.status == 'Returning' %} selected="selected" {% endif %}>Returning</option>
+                </select>
+                <!--
+                <div class="form-group">
+                    <input autocomplete="off" class="form-control" type="text" name="status" value="{{ prefect.status }}" >
+                </div>
+                -->
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 category">Home Phone</div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <input autocomplete="off" class="form-control" type="text" name="home" value="{{ prefect.home }}" oninput="homePhoneStyle(this.form)">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 category">Cell Phone</div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <input autocomplete="off" class="form-control" type="text" name="cell" value="{{ prefect.cell }}" oninput="cellPhoneStyle(this.form)">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 category">Email</div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <input autocomplete="off" class="form-control" type="text" name="email" value="{{ prefect.email }}">
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+{% endblock %}

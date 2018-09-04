@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block main %}
+
+    <h1>{{ prefect.name }}</h1>
+    <h6>{{ prefect.position }}</h6>
+    <h4>{{ prefect.credits }} events</h4>
+    {% if prefect.credits >= 4 %}
+        <p class="green">Eligible for certificate</p>
+    {% else %}
+        <p class="red">Not yet elegible for certificate ({{ 4 - prefect.credits }} events needed)</p>
+    {% endif %}
+    {% if prefect.credits >= 5 %}
+        <p class="green">Eligible to apply for executive position</p>
+    {% else %}
+        <p class="red">Not yet eligible to apply for executive position ({{ 5 - prefect.credits }} events needed)</p>
+    {% endif %}
+
+    <ul>
+        {% for event in prefect.events %}
+            {% if event[1] == 3 %}
+                <li>{{ event[0] }} (Shifts 1 + 2, {{ event[2] }} events)</li>
+            {% else %}
+                <li>{{ event[0] }} (Shift {{ event[1] }}, {{ event[2] }} events)</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    <h5>{{ prefect.leader }}'s Group</h5>
+    <br>
+    <h3>Upcoming events you're prefecting at:</h3>
+    <ul>
+        {% for event in prefect.registered %}
+            {% if event[1] == 3 %}
+                <li>{{ event[0] }} (Shifts 1 + 2, {{ event[2] }} events)</li>
+            {% else %}
+                <li>{{ event[0] }} (Shift {{ event[1] }}, {{ event[2] }} events)</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+
+{% endblock %}
