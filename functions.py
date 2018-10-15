@@ -3,7 +3,7 @@ import requests, urllib.parse, sqlite3
 from flask import *
 from functools import wraps
 
-conn = sqlite3.connect('prefects.db', check_same_thread=False)
+conn = sqlite3.connect('/home/bssprefectportal/app/prefects.db', check_same_thread=False)
 db = conn.cursor()
 
 def login_required(f):

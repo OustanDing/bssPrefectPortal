@@ -30,7 +30,7 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 
 
-conn = sqlite3.connect('prefects.db', check_same_thread=False)
+conn = sqlite3.connect('/home/bssprefectportal/app/prefects.db', check_same_thread=False)
 db = conn.cursor()
 
 
@@ -1282,6 +1282,7 @@ def register():
     else:
         return render_template('register.html')
 
+'''
 @app.route('/viewe')
 def viewe():
     confirmed = []
@@ -1338,6 +1339,7 @@ def viewe():
             })
 
     return render_template('viewe.html', confirmed = confirmed)
+'''
 
 @app.route('/checke')
 @login_required
