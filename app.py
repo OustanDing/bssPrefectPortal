@@ -1002,6 +1002,7 @@ def eventdone(eventCode, shift):
     db.execute('UPDATE events SET visible = "no", done = "yes" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
+    '''
     db.execute('SELECT value FROM events WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     eventValue = db.fetchall()[0][0]
 
@@ -1016,6 +1017,7 @@ def eventdone(eventCode, shift):
         db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, prefectId))
         db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, eventValue, prefectId))
     conn.commit()
+    '''
 
     return redirect(url_for('eventse'))
 
@@ -1025,6 +1027,7 @@ def eventundone(eventCode, shift):
     db.execute('UPDATE events SET done = "no" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
+    '''
     db.execute('SELECT value FROM events WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     eventValue = db.fetchall()[0][0]
 
@@ -1039,6 +1042,7 @@ def eventundone(eventCode, shift):
         db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, prefectId))
         db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, eventValue, prefectId))
     conn.commit()
+    '''
 
     return redirect(url_for('eventse'))
 
