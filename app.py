@@ -350,17 +350,23 @@ def declinede():
 
     return render_template('declinede.html', currentaddress = 'declinede', totaldec = totaldec, declined = declined)
 
-@app.route('/approve/<eventCode>/<shift>/<id>/<redirAddress>')
+@app.route('/approve/<eventCode>/<shift>/<id>')
 @login_required
-def approve(eventCode, shift, id, redirAddress):
+def approve(eventCode, shift, id):
     db.execute('DELETE FROM requested WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
     db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     conn.commit()
 
-    if redirAddress == 'requestede':
-        return redirect(url_for('requestede'))
-    else:
-        return redirect(url_for('declinede'))
+    return redirect(url_for('requestede'))
+
+@app.route('/approvefromdeclined/<eventCode>/<shift>/<id>')
+@login_required
+def approvefromdeclined(eventCode, shift, id):
+    db.execute('DELETE FROM declined WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    conn.commit()
+
+    return redirect(url_for('declinede'))
 
 @app.route('/unapprove/<eventCode>/<shift>/<id>')
 @login_required
@@ -371,17 +377,23 @@ def unapprove(eventCode, shift, id):
 
     return redirect(url_for('approvede'))
 
-@app.route('/decline/<eventCode>/<shift>/<id>/<redirAddress>')
+@app.route('/decline/<eventCode>/<shift>/<id>')
 @login_required
-def decline(eventCode, shift, id, redirAddress):
+def decline(eventCode, shift, id):
     db.execute('DELETE FROM requested WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
     db.execute('INSERT INTO declined (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     conn.commit()
 
-    if redirAddress == 'approvede':
-        return redirect(url_for('approvede'))
-    else:
-        return redirect(url_for('requestede'))
+    return redirect(url_for('requestede'))
+
+@app.route('/declinefromapproved/<eventCode>/<shift>/<id>')
+@login_required
+def declinefromapproved(eventCode, shift, id):
+    db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    db.execute('INSERT INTO declined (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    conn.commit()
+
+    return redirect(url_for('approvede'))
 
 @app.route('/undecline/<eventCode>/<shift>/<id>')
 @login_required
@@ -739,7 +751,11 @@ def editPrefectInfo(prefectId):
 @app.route('/deleteprefecte/<prefectId>')
 @login_required
 def deletePrefect(prefectId):
-    db.execute('DELETE FROM users WHERE id = ?', prefectId)
+    db.execute('DELETE FROM users WHERE id = ?', (prefectId,))
+    db.execute('DELETE FROM signup WHERE id = ?', (prefectId,))
+    db.execute('DELETE FROM completed WHERE id = ?', (prefectId,))
+    db.execute('DELETE FROM requested WHERE id = ?', (prefectId,))
+    db.execute('DELETE FROM declined WHERE id = ?', (prefectId,))
     conn.commit()
 
     return redirect(url_for('indexe'))
@@ -779,17 +795,6 @@ def events():
         'code': event[1]
     } for event in requestedEvents]
 
-    # Get available events
-    db.execute('SELECT * FROM events WHERE visible = "yes"')
-    availableEvents = db.fetchall()
-
-    available = [{
-        'name': event[0],
-        'shift': event[2],
-        'value': event[3],
-        'code': event[1]
-    } for event in availableEvents if event[1] not in [event[1] for event in registeredEvents] and event[1] not in [event[1] for event in requestedEvents]]
-
     # Get completed events
     db.execute('SELECT * FROM completed WHERE id = ?', (session['user_id'],))
     completedEvents = db.fetchall()
@@ -799,6 +804,17 @@ def events():
         'shift': event[2],
         'value': event[3]
     } for event in completedEvents]
+
+    # Get available events
+    db.execute('SELECT * FROM events WHERE visible = "yes"')
+    availableEvents = db.fetchall()
+
+    available = [{
+        'name': event[0],
+        'shift': event[2],
+        'value': event[3],
+        'code': event[1]
+    } for event in availableEvents if event[1] not in [event[1] for event in registeredEvents] and event[1] not in [event[1] for event in requestedEvents] and event[1] not in [event[1] for event in completedEvents]]
 
     total = 0
 
