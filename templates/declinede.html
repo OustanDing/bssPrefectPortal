@@ -32,7 +32,7 @@
                         {{ eventRequest.shift }}
                     {% endif %}</td>
                     <td>{{ eventRequest.value }}</td>
-                    <td><a href="/approve/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}/declinede">Approve</a></td>
+                    <td><a href="/approvefromdeclined/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}">Approve</a></td>
                     <td><a href="/undecline/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}">Undecline</a></td>
                 </tr>
             {% endfor %}
