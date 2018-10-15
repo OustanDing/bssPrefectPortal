@@ -58,26 +58,18 @@ p {
     width: 10%;
 }
 
-.viewname {
-    width: 14%;
+.checkname {
+    width: 35%;
 }
 
-.viewgroup {
-    width: 6%;
+.checkgroup {
+    width: 25%;
 }
 
-.viewcredits {
-    width: 9%;
+.checkshift {
+    width: 10%;
 }
 
-.viewemail {
-    width: 16%;
-}
-
-.viewhome, .viewcell {
-    width: 8%;
-}
-
-.viewdietary {
-    width: 27%;
+.checkoption, .checkoption2 {
+    width: 15%;
 }

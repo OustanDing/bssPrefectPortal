@@ -8,7 +8,7 @@
 
     <h1>{{ prefect.name }}</h1>
     <h6>{{ prefect.position }}</h6>
-    <h4>{{ prefect.credits }} events</h4>
+    <h4>{{ prefect.credits }} event{% if prefect.credits != 1.0 %}s{% endif %}</h4>
     {% if prefect.credits >= 4 %}
         <p class="green">Eligible for certificate</p>
     {% else %}

@@ -1339,6 +1339,163 @@ def viewe():
 
     return render_template('viewe.html', confirmed = confirmed)
 
+@app.route('/checke')
+@login_required
+def checke():
+    events = []
+
+    db.execute('SELECT * FROM events WHERE visible = "yes" AND done = "no"')
+    activeEvents = db.fetchall()
+
+    for event in activeEvents:
+        if (event[0], event[1]) not in events:
+            events.append({
+                'title': event[0],
+                'id': event[1]
+                })
+
+    currentEvent = {
+        'title': None,
+        'id': None
+    }
+
+    return render_template('checke.html', events = events, currentEvent = currentEvent, visibility = 'hidden')
+
+@app.route('/checke/<eventId>')
+@login_required
+def checkeventee(eventId):
+    # Retrieve options
+    events = []
+
+    db.execute('SELECT * FROM events WHERE visible = "yes" AND done = "no"')
+    activeEvents = db.fetchall()
+
+    for event in activeEvents:
+        if (event[0], event[1]) not in events:
+            events.append({
+                'title': event[0],
+                'id': event[1]
+                })
+
+    # Current event
+    db.execute('SELECT * FROM events WHERE eventCode = ?', (eventId,))
+    currentEventInfo = db.fetchall()[0]
+
+    currentEvent = {
+        'title': currentEventInfo[0],
+        'id': currentEventInfo[1]
+    }
+
+    # Not checked in
+    notIn = []
+    db.execute('SELECT * FROM signup WHERE eventCode = ? AND checkin = "no"', (eventId,))
+    notChecked = db.fetchall()
+
+    for request in notChecked:
+        db.execute('SELECT name FROM users WHERE id = ?', (request[4],))
+        prefectName = db.fetchall()[0][0]
+        db.execute('SELECT leader FROM users WHERE id = ?', (request[4],))
+        prefectGroup = db.fetchall()[0][0]
+
+        notIn.append({
+            'name': prefectName,
+            'group': prefectGroup,
+            'shift': request[2],
+            'id': request[4]
+        })
+
+        notIn = sorted(notIn, key = itemgetter('shift', 'name'))
+
+    # Checked in
+    In = []
+    db.execute('SELECT * FROM signup WHERE eventCode = ? AND checkin = "yes"', (eventId,))
+    checked = db.fetchall()
+
+    for request in checked:
+        db.execute('SELECT name FROM users WHERE id = ?', (request[4],))
+        prefectName = db.fetchall()[0][0]
+        db.execute('SELECT leader FROM users WHERE id = ?', (request[4],))
+        prefectGroup = db.fetchall()[0][0]
+
+        In.append({
+            'name': prefectName,
+            'group': prefectGroup,
+            'shift': request[2],
+            'id': request[4]
+        })
+
+        In = sorted(In, key = itemgetter('shift', 'name'))
+
+    # Checked out
+    Out = []
+    db.execute('SELECT * FROM completed WHERE eventCode = ?', (eventId,))
+    checkedout = db.fetchall()
+
+    for request in checkedout:
+        db.execute('SELECT name FROM users WHERE id = ?', (request[4],))
+        prefectName = db.fetchall()[0][0]
+        db.execute('SELECT leader FROM users WHERE id = ?', (request[4],))
+        prefectGroup = db.fetchall()[0][0]
+
+        Out.append({
+            'name': prefectName,
+            'group': prefectGroup,
+            'shift': request[2],
+            'id': request[4]
+        })
+
+        Out = sorted(Out, key = itemgetter('shift', 'name'))
+
+    return render_template('checke.html', events = events, currentEvent = currentEvent, notIn = notIn, In = In, Out = Out, visibility = 'visible')
+
+@app.route('/checkin/<eventId>/<prefectId>')
+@login_required
+def checkin(eventId, prefectId):
+    db.execute('UPDATE signup SET checkin = "yes" WHERE eventCode = ? AND id = ?', (eventId, prefectId))
+    conn.commit()
+
+    return redirect(url_for('checkeventee', eventId = eventId))
+
+@app.route('/uncheckin/<eventId>/<prefectId>')
+@login_required
+def uncheckin(eventId, prefectId):
+    db.execute('UPDATE signup SET checkin = "no" WHERE eventCode = ? AND id = ?', (eventId, prefectId))
+    conn.commit()
+
+    return redirect(url_for('checkeventee', eventId = eventId))
+
+@app.route('/checkout/<eventCode>/<shift>/<id>')
+@login_required
+def checkout(eventCode, shift, id):
+    db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('SELECT credits FROM users WHERE id = ?', (id,))
+    currentCredits = db.fetchone()[0]
+    db.execute('UPDATE users SET credits = ? WHERE id = ?', (
+        currentCredits + lookup(eventCode, shift)['value'],
+        id
+        ))
+    conn.commit()
+
+    return redirect(url_for('checkeventee', eventId = eventCode))
+
+@app.route('/checkbackin/<eventCode>/<shift>/<id>')
+@login_required
+def checkbackin(eventCode, shift, id):
+    db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('SELECT credits FROM users WHERE id = ?', (id,))
+    currentCredits = db.fetchone()[0]
+    db.execute('UPDATE users SET credits = ? WHERE id = ?', (
+        currentCredits - lookup(eventCode, shift)['value'],
+        id
+        ))
+    db.execute('UPDATE signup SET checkin = "yes" WHERE id = ?', (id,))
+
+    conn.commit()
+
+    return redirect(url_for('checkeventee', eventId = eventCode))
+
 def errorhandler(e):
     '''Handle error'''
     return apology(e.name, e.code)

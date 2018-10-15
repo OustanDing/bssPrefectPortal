@@ -1,0 +1,92 @@
+{% extends "layoute.html" %}
+
+{% block title %}
+    Check In/Out
+{% endblock %}
+
+{% block main %}
+
+    <form action="" method="POST" name="check">
+        <select class="form-control" name="event" onchange="window.location.href=this.value">
+            <option value="" selected disabled>Select Event</option>
+            {% for event in events %}
+                <option value="/checke/{{ event.id }}" {% if event.id == currentEvent.id %}selected{% endif %}>{{ event.title }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    <br>
+    <div style="visibility: {{ visibility }};">
+        <h3>Not Checked In ({{ notIn|length }})</h3>
+        <table class="table table-striped text-left">
+            <thead>
+                <tr>
+                    <th class="checkname">Name</th>
+                    <th class="checkgroup">Group</th>
+                    <th class="checkshift">Shift</th>
+                    <th class="checkoption"></th>
+                    <th class="checkoption2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prefect in notIn %}
+                    <tr>
+                        <td class="checkname">{{ prefect.name }}</td>
+                        <td class="checkgroup">{{ prefect.group }}</td>
+                        <td class="checkshift">{{ prefect.shift }}</td>
+                        <td class="checkoption"><a href="/checkin/{{ currentEvent.id }}/{{ prefect.id }}">Check In</a></td>
+                        <td class="checkoption2"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Checked In ({{ In|length }})</h3>
+        <table class="table table-striped text-left">
+            <thead>
+                <tr>
+                    <th class="checkname">Name</th>
+                    <th class="checkgroup">Group</th>
+                    <th class="checkshift">Shift</th>
+                    <th class="checkoption"></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prefect in In %}
+                    <tr>
+                        <td class="checkname">{{ prefect.name }}</td>
+                        <td class="checkgroup">{{ prefect.group }}</td>
+                        <td class="checkshift">{{ prefect.shift }}</td>
+                        <td class="checkoption"><a href="/uncheckin/{{ currentEvent.id }}/{{ prefect.id }}">Not present</a></td>
+                        <td class="checkoption2"><a href="/checkout/{{ currentEvent.id }}/{{ prefect.shift }}/{{ prefect.id }}">Check Out</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Checked Out ({{ Out|length }})</h3>
+        <table class="table table-striped text-left">
+            <thead>
+                <tr>
+                    <th class="checkname">Name</th>
+                    <th class="checkgroup">Group</th>
+                    <th class="checkshift">Shift</th>
+                    <th class="checkoption"></th>
+                    <th class="checkoption2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prefect in Out %}
+                    <tr>
+                        <td class="checkname">{{ prefect.name }}</td>
+                        <td class="checkgroup">{{ prefect.group }}</td>
+                        <td class="checkshift">{{ prefect.shift }}</td>
+                        <td class="checkoption"><a href="/checkbackin/{{ currentEvent.id }}/{{ prefect.shift }}/{{ prefect.id }}">Check back in</a></td>
+                        <td class="checkoption2"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
