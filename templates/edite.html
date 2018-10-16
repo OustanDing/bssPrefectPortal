@@ -45,7 +45,7 @@
             <div class="col-md-6"><span class="category">Dietary Restrictions </span>(Please list)</div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <input autocomplete="off" class="form-control" type="text" name="dietary" value="{{ prefect.dietary }}" >
+                    <input autocomplete="off" class="form-control" type="text" name="dietary" value="{{ prefect.dietary or '' }}" >
                 </div>
             </div>
         </div>
@@ -88,7 +88,7 @@
             <div class="col-md-6 category">Home Phone</div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <input autocomplete="off" class="form-control" type="text" name="home" value="{{ prefect.home }}" oninput="homePhoneStyle(this.form)">
+                    <input autocomplete="off" class="form-control" type="text" name="home" value="{{ prefect.home or '' }}" oninput="homePhoneStyle(this.form)">
                 </div>
             </div>
         </div>
@@ -96,7 +96,7 @@
             <div class="col-md-6 category">Cell Phone</div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <input autocomplete="off" class="form-control" type="text" name="cell" value="{{ prefect.cell }}" oninput="cellPhoneStyle(this.form)">
+                    <input autocomplete="off" class="form-control" type="text" name="cell" value="{{ prefect.cell or '' }}" oninput="cellPhoneStyle(this.form)">
                 </div>
             </div>
         </div>
@@ -104,7 +104,7 @@
             <div class="col-md-6 category">Email</div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <input autocomplete="off" class="form-control" type="text" name="email" value="{{ prefect.email }}">
+                    <input autocomplete="off" class="form-control" type="text" name="email" value="{{ prefect.email or '' }}">
                 </div>
             </div>
         </div>

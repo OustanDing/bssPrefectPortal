@@ -17,11 +17,11 @@
     </div>
     <div class="row smallMargin">
         <div class="col-md-6 category">Gender</div>
-        <div class="col-md-6">{{ prefect.gender }}</div>
+        <div class="col-md-6">{{ prefect.gender or 'N/A' }}</div>
     </div>
     <div class="row smallMargin">
         <div class="col-md-6 category">Dietary Restrictions</div>
-        <div class="col-md-6">{{ prefect.dietary }}</div>
+        <div class="col-md-6">{{ prefect.dietary or 'N/A' }}</div>
     </div>
     <div class="row smallMargin">
         <div class="col-md-6 category">Group Leader</div>
@@ -29,23 +29,23 @@
     </div>
     <div class="row smallMargin">
         <div class="col-md-6 category">Clothing Size</div>
-        <div class="col-md-6">{{ prefect.size }}</div>
+        <div class="col-md-6">{{ prefect.size or 'N/A' }}</div>
     </div>
     <div class="row smallMargin">
         <div class="col-md-6 category">Status</div>
-        <div class="col-md-6">{{ prefect.status }}</div>
+        <div class="col-md-6">{{ prefect.status or 'N/A' }}</div>
     </div>
     <div class="row smallMargin">
         <div class="col-md-6 category">Home Phone</div>
-        <div class="col-md-6">{{ prefect.home }}</div>
+        <div class="col-md-6">{{ prefect.home or 'N/A' }}</div>
     </div>
     <div class="row smallMargin">
         <div class="col-md-6 category">Cell Phone</div>
-        <div class="col-md-6">{{ prefect.cell }}</div>
+        <div class="col-md-6">{{ prefect.cell or 'N/A' }}</div>
     </div>
     <div class="row">
         <div class="col-md-6 category">Email</div>
-        <div class="col-md-6">{{ prefect.email }}</div>
+        <div class="col-md-6">{{ prefect.email or 'N/A' }}</div>
     </div>
 
 {% endblock %}

@@ -48,14 +48,14 @@
                     <tr>
                         <td class="text-nowrap">{{ prefect.name }}</td>
                         <td>{{ prefect.credits }}</td>
-                        <td>{{ prefect.gender }}</td>
+                        <td>{{ prefect.gender or 'N/A' }}</td>
                         <td>{{ prefect.grade }}</td>
-                        <td>{{ prefect.size }}</td>
-                        <td>{{ prefect.email }}</td>
-                        <td class="text-nowrap">{{ prefect.home }}</td>
-                        <td class="text-nowrap">{{ prefect.cell }}</td>
-                        <td class="text-nowrap">{{ prefect.dietary }}</td>
-                        <td class="text-nowrap">{{ prefect.status }}</td>
+                        <td>{{ prefect.size or 'N/A' }}</td>
+                        <td>{{ prefect.email or 'N/A' }}</td>
+                        <td class="text-nowrap">{{ prefect.home or 'N/A' }}</td>
+                        <td class="text-nowrap">{{ prefect.cell or 'N/A' }}</td>
+                        <td class="text-nowrap">{{ prefect.dietary or 'N/A' }}</td>
+                        <td class="text-nowrap">{{ prefect.status or 'N/A' }}</td>
                         <td class="text-nowrap">
                             <ul>
                                 {% for event in prefect.completed %}
