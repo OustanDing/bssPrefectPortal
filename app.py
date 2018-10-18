@@ -1354,11 +1354,12 @@ def checke():
     activeEvents = db.fetchall()
 
     for event in activeEvents:
-        if (event[0], event[1]) not in events:
-            events.append({
-                'title': event[0],
-                'id': event[1]
-                })
+        tempdict = {
+            'title': event[0],
+            'id': event[1]
+            }
+        if tempdict not in events:
+            events.append(tempdict)
 
     currentEvent = {
         'title': None,
@@ -1377,11 +1378,12 @@ def checkeventee(eventId):
     activeEvents = db.fetchall()
 
     for event in activeEvents:
-        if (event[0], event[1]) not in events:
-            events.append({
-                'title': event[0],
-                'id': event[1]
-                })
+        tempdict = {
+            'title': event[0],
+            'id': event[1]
+            }
+        if tempdict not in events:
+            events.append(tempdict)
 
     # Current event
     db.execute('SELECT * FROM events WHERE eventCode = ?', (eventId,))
@@ -1497,6 +1499,22 @@ def checkbackin(eventCode, shift, id):
         id
         ))
     db.execute('UPDATE signup SET checkin = "yes" WHERE id = ?', (id,))
+
+    conn.commit()
+
+    return redirect(url_for('checkeventee', eventId = eventCode))
+
+@app.route('/uncheckinfromcheckout/<eventCode>/<shift>/<id>')
+@login_required
+def uncheckinfromcheckout(eventCode, shift, id):
+    db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('SELECT credits FROM users WHERE id = ?', (id,))
+    currentCredits = db.fetchone()[0]
+    db.execute('UPDATE users SET credits = ? WHERE id = ?', (
+        currentCredits - lookup(eventCode, shift)['value'],
+        id
+        ))
 
     conn.commit()
 

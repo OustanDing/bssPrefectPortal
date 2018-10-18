@@ -33,7 +33,7 @@
                         <td class="checkname">{{ prefect.name }}</td>
                         <td class="checkgroup">{{ prefect.group }}</td>
                         <td class="checkshift">{{ prefect.shift }}</td>
-                        <td class="checkoption"></td>
+                        <td class="checkoption"><a href="/checkout/{{ currentEvent.id }}/{{ prefect.shift }}/{{ prefect.id }}">Check In and Out</a></td>
                         <td class="checkoption2"><a href="/checkin/{{ currentEvent.id }}/{{ prefect.id }}">Check In</a></td>
                     </tr>
                 {% endfor %}
@@ -57,7 +57,7 @@
                         <td class="checkname">{{ prefect.name }}</td>
                         <td class="checkgroup">{{ prefect.group }}</td>
                         <td class="checkshift">{{ prefect.shift }}</td>
-                        <td class="checkoption"><a href="/uncheckin/{{ currentEvent.id }}/{{ prefect.id }}">Not present</a></td>
+                        <td class="checkoption"><a href="/uncheckin/{{ currentEvent.id }}/{{ prefect.id }}">No show</a></td>
                         <td class="checkoption2"><a href="/checkout/{{ currentEvent.id }}/{{ prefect.shift }}/{{ prefect.id }}">Check Out</a></td>
                     </tr>
                 {% endfor %}
@@ -81,7 +81,7 @@
                         <td class="checkname">{{ prefect.name }}</td>
                         <td class="checkgroup">{{ prefect.group }}</td>
                         <td class="checkshift">{{ prefect.shift }}</td>
-                        <td class="checkoption"></td>
+                        <td class="checkoption"><a href="/uncheckinfromcheckout/{{ currentEvent.id }}/{{ prefect.id }}">No show</a></td>
                         <td class="checkoption2"><a href="/checkbackin/{{ currentEvent.id }}/{{ prefect.shift }}/{{ prefect.id }}">Check back in</a></td>
                     </tr>
                 {% endfor %}
