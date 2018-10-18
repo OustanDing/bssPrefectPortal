@@ -81,7 +81,7 @@
                         <td class="checkname">{{ prefect.name }}</td>
                         <td class="checkgroup">{{ prefect.group }}</td>
                         <td class="checkshift">{{ prefect.shift }}</td>
-                        <td class="checkoption"><a href="/uncheckinfromcheckout/{{ currentEvent.id }}/{{ prefect.id }}">No show</a></td>
+                        <td class="checkoption"><a href="/uncheckinfromcheckout/{{ currentEvent.id }}/{{ prefect.shift }}/{{ prefect.id }}">No show</a></td>
                         <td class="checkoption2"><a href="/checkbackin/{{ currentEvent.id }}/{{ prefect.shift }}/{{ prefect.id }}">Check back in</a></td>
                     </tr>
                 {% endfor %}
