@@ -1515,6 +1515,7 @@ def uncheckinfromcheckout(eventCode, shift, id):
         currentCredits - lookup(eventCode, shift)['value'],
         id
         ))
+    db.execute('UPDATE signup SET checkin = "no" WHERE id = ?', (id,))
 
     conn.commit()
 
