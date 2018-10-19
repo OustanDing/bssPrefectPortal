@@ -36,7 +36,7 @@
                             {% if prefect.shift == 3 %}
                                 1 + 2
                             {% else %}
-                                prefect.shift
+                                {{ prefect.shift }}
                             {% endif %}
                         </td>
                         <td class="checkoption"><a href="/checkout/{{ currentEvent.id }}/{{ prefect.shift }}/{{ prefect.id }}">Check In and Out</a></td>
@@ -66,7 +66,7 @@
                             {% if prefect.shift == 3 %}
                                 1 + 2
                             {% else %}
-                                prefect.shift
+                                {{ prefect.shift }}
                             {% endif %}</td>
                         <td class="checkoption"><a href="/uncheckin/{{ currentEvent.id }}/{{ prefect.id }}">No show</a></td>
                         <td class="checkoption2"><a href="/checkout/{{ currentEvent.id }}/{{ prefect.shift }}/{{ prefect.id }}">Check Out</a></td>
@@ -95,7 +95,7 @@
                             {% if prefect.shift == 3 %}
                                 1 + 2
                             {% else %}
-                                prefect.shift
+                                {{ prefect.shift }}
                             {% endif %}</td>
                         <td class="checkoption"><a href="/uncheckinfromcheckout/{{ currentEvent.id }}/{{ prefect.shift }}/{{ prefect.id }}">No show</a></td>
                         <td class="checkoption2"><a href="/checkbackin/{{ currentEvent.id }}/{{ prefect.shift }}/{{ prefect.id }}">Check back in</a></td>
