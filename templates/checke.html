@@ -16,6 +16,7 @@
     </form>
     <br>
     <div style="visibility: {{ visibility }};">
+        <!-- Not checked in Table -->
         <h3>Not Checked In ({{ notIn|length }})</h3>
         <table class="table table-striped text-left">
             <thead>
@@ -46,6 +47,7 @@
             </tbody>
         </table>
 
+        <!-- Checked in Table -->
         <h3>Checked In ({{ In|length }})</h3>
         <table class="table table-striped text-left">
             <thead>
@@ -75,6 +77,7 @@
             </tbody>
         </table>
 
+        <!-- Checked Out Table -->
         <h3>Checked Out ({{ Out|length }})</h3>
         <table class="table table-striped text-left">
             <thead>
