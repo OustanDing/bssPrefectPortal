@@ -1350,7 +1350,7 @@ def viewe():
 def checke():
     events = []
 
-    db.execute('SELECT * FROM events WHERE AND done = "no"')
+    db.execute('SELECT * FROM events WHERE done = "no"')
     activeEvents = db.fetchall()
 
     for event in activeEvents:
@@ -1374,7 +1374,7 @@ def checkeventee(eventId):
     # Retrieve options
     events = []
 
-    db.execute('SELECT * FROM events WHERE AND done = "no"')
+    db.execute('SELECT * FROM events WHERE done = "no"')
     activeEvents = db.fetchall()
 
     for event in activeEvents:
