@@ -295,7 +295,6 @@ def approvede():
 @login_required
 @checkPositionPermission("Executive", "index")
 def confirmede():
-
     confirmed = []
     totalcon = 0
 
@@ -331,7 +330,6 @@ def confirmede():
 @login_required
 @checkPositionPermission("Executive", "index")
 def declinede():
-
     declined = []
     totaldec = 0
 
@@ -467,7 +465,6 @@ def unconfirm(eventCode, shift, id):
 @login_required
 @checkPositionPermission("Prefect", "changee")
 def change():
-
     '''Change password'''
 
     # check if information is sent
@@ -519,7 +516,6 @@ def change():
 @login_required
 @checkPositionPermission("Executive", "index")
 def changee():
-
     '''Change password'''
 
     # check if information is sent
@@ -571,7 +567,6 @@ def changee():
 @login_required
 @checkPositionPermission("Prefect", "edite")
 def edit():
-
     if request.method == 'GET':
         # return user information from database
         db.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
@@ -644,7 +639,6 @@ def edit():
 @login_required
 @checkPositionPermission("Executive", "edit")
 def edite():
-
     if request.method == 'GET':
         # return user information from database
         db.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
@@ -720,7 +714,6 @@ def edite():
 @login_required
 @checkPositionPermission("Executive", "index")
 def editprefecte():
-
     db.execute('SELECT leader FROM users WHERE id = ?', (session['user_id'],))
     groupName = db.fetchall()[0][0]
 
@@ -758,7 +751,6 @@ def editprefecte():
 @login_required
 @checkPositionPermission("Executive", "index")
 def editPrefectInfo(prefectId):
-
     if request.method == 'GET':
         db.execute('SELECT leader FROM users WHERE id = ?', (session['user_id'],))
         groupName = db.fetchall()[0][0]
@@ -813,7 +805,6 @@ def editPrefectInfo(prefectId):
 @login_required
 @checkPositionPermission("Executive", "index")
 def deletePrefect(prefectId):
-
     db.execute('DELETE FROM users WHERE id = ?', (prefectId,))
     db.execute('DELETE FROM signup WHERE id = ?', (prefectId,))
     db.execute('DELETE FROM completed WHERE id = ?', (prefectId,))
@@ -828,7 +819,6 @@ def deletePrefect(prefectId):
 @login_required
 @checkPositionPermission("Executive", "index")
 def resetPass(prefectId):
-
     db.execute('UPDATE users SET hash = ? WHERE id = ?', (
         generate_password_hash('1234'),
         prefectId
@@ -842,7 +832,6 @@ def resetPass(prefectId):
 @login_required
 @checkPositionPermission("Prefect", "eventse")
 def events():
-
     # Get user's registered events
     db.execute('SELECT * FROM signup WHERE id = ?', (session['user_id'],))
     registeredEvents = db.fetchall()
@@ -913,7 +902,7 @@ def withdraw(eventCode):
 def signup(eventCode, shift):
     # Add to user's registered events
     db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (
-    lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], session['user_id']))
+        lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], session['user_id']))
     conn.commit()
 
     return redirect(url_for('events'))
@@ -923,7 +912,6 @@ def signup(eventCode, shift):
 @login_required
 @checkPositionPermission("Executive", "events")
 def eventse():
-
     if request.method == 'GET':
         db.execute('SELECT * FROM events')
         eventData = db.fetchall()
@@ -1037,7 +1025,6 @@ def eventse():
 @login_required
 @checkPositionPermission("Executive", "index")
 def eventhide(eventCode, shift):
-
     db.execute('UPDATE events SET visible = "no" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
@@ -1048,7 +1035,6 @@ def eventhide(eventCode, shift):
 @login_required
 @checkPositionPermission("Executive", "index")
 def eventshow(eventCode, shift):
-
     db.execute('UPDATE events SET visible = "yes" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
@@ -1059,7 +1045,6 @@ def eventshow(eventCode, shift):
 @login_required
 @checkPositionPermission("Executive", "index")
 def eventremove(eventCode, shift):
-
     db.execute('DELETE FROM events WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
@@ -1093,7 +1078,6 @@ def eventremove(eventCode, shift):
 @login_required
 @checkPositionPermission("Executive", "index")
 def eventdone(eventCode, shift):
-
     db.execute('UPDATE events SET visible = "no", done = "yes" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
@@ -1121,7 +1105,6 @@ def eventdone(eventCode, shift):
 @login_required
 @checkPositionPermission("Executive", "index")
 def eventundone(eventCode, shift):
-
     db.execute('UPDATE events SET done = "no" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
@@ -1149,7 +1132,6 @@ def eventundone(eventCode, shift):
 @login_required
 @checkPositionPermission("Prefect", "filese")
 def files():
-
     db.execute('SELECT * FROM files')
     fileData = db.fetchall()
 
@@ -1165,7 +1147,6 @@ def files():
 @login_required
 @checkPositionPermission("Executive", "files")
 def filese():
-
     if request.method == 'GET':
         db.execute('SELECT * FROM files')
         fileData = db.fetchall()
@@ -1218,7 +1199,6 @@ def filese():
 @login_required
 @checkPositionPermission("Executive", "index")
 def hide(fileId):
-
     db.execute('UPDATE files SET visible = "no" WHERE id = ?', (fileId,))
     conn.commit()
 
@@ -1229,7 +1209,6 @@ def hide(fileId):
 @login_required
 @checkPositionPermission("Executive", "index")
 def show(fileId):
-
     db.execute('UPDATE files SET visible = "yes" WHERE id = ?', (fileId,))
     conn.commit()
 
@@ -1240,7 +1219,6 @@ def show(fileId):
 @login_required
 @checkPositionPermission("Executive", "index")
 def remove(fileId):
-
     db.execute('DELETE FROM files WHERE id = ?', (fileId,))
     conn.commit()
 
@@ -1306,7 +1284,6 @@ def logout():
 @login_required
 @checkPositionPermission("Prefect", "profilee")
 def profile():
-
     '''Display user information'''
 
     # retrieve user information from database
@@ -1333,8 +1310,6 @@ def profile():
 @login_required
 @checkPositionPermission("Executive", "profile")
 def profilee():
-
-
     '''Display user information'''
 
     # retrieve user information from database
@@ -1478,7 +1453,6 @@ def viewe():
 @login_required
 @checkPositionPermission("Executive", "index")
 def checke():
-
     events = []
 
     db.execute('SELECT * FROM events WHERE done = "no"')
@@ -1504,7 +1478,6 @@ def checke():
 @login_required
 @checkPositionPermission("Executive", "index")
 def checkeventee(eventId):
-
     # Retrieve options
     events = []
 
@@ -1596,7 +1569,6 @@ def checkeventee(eventId):
 @login_required
 @checkPositionPermission("Executive", "index")
 def checkin(eventId, prefectId):
-
     db.execute('UPDATE signup SET checkin = "yes" WHERE eventCode = ? AND id = ?', (eventId, prefectId))
     conn.commit()
 
@@ -1607,7 +1579,6 @@ def checkin(eventId, prefectId):
 @login_required
 @checkPositionPermission("Executive", "index")
 def uncheckin(eventId, prefectId):
-
     db.execute('UPDATE signup SET checkin = "no" WHERE eventCode = ? AND id = ?', (eventId, prefectId))
     conn.commit()
 
@@ -1618,7 +1589,6 @@ def uncheckin(eventId, prefectId):
 @login_required
 @checkPositionPermission("Executive", "index")
 def checkout(eventCode, shift, id):
-
     db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
     db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
                (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
@@ -1637,7 +1607,6 @@ def checkout(eventCode, shift, id):
 @login_required
 @checkPositionPermission("Executive", "index")
 def checkbackin(eventCode, shift, id):
-
     db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
     db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
                (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
@@ -1658,7 +1627,6 @@ def checkbackin(eventCode, shift, id):
 @login_required
 @checkPositionPermission("Executive", "index")
 def uncheckinfromcheckout(eventCode, shift, id):
-
     db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
     db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
                (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
