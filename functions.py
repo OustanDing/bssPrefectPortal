@@ -42,11 +42,26 @@ def lookup(code, shift):
     }
 
     return info
-def checkPositionPermission(validPermissionLevel, redirectTo):
 
-    db.execute("SELECT position FROM users WHERE id = ?", (session['user_id'],))
-    position = db.fetchall()
-    if postion =="Admin":
-        return
-    elif position != validPermissionLevel:
-        return redirect(url_for(redirectTo))
+
+def checkPositionPermission(validPermissionLevel, redirectTo):
+    def real_decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            db.execute("SELECT position FROM users WHERE id = ?", (session['user_id'],))
+            row = db.fetchone()
+            position = row[0]
+
+            if position == "Admin":
+                print('a')
+                return f(*args, **kwargs)
+            elif position != validPermissionLevel:
+                print('b')
+
+                return redirect(url_for(redirectTo))
+            else:
+                print('c')
+                return f(*args, **kwargs)
+
+        return wrapper
+    return real_decorator
