@@ -48,5 +48,5 @@ def checkPositionPermission(validPermissionLevel, redirectTo):
     position = db.fetchall()
     if postion =="Admin":
         return
-    elif position != permissionLevele:
+    elif position != validPermissionLevel:
         return redirect(url_for(redirectTo))
