@@ -42,3 +42,11 @@ def lookup(code, shift):
     }
 
     return info
+def checkPositionPermission(validPermissionLevel, redirectTo):
+
+    db.execute("SELECT position FROM users WHERE id = ?", (session['user_id'],))
+    position = db.fetchall()
+    if postion =="Admin":
+        return
+    elif position != permissionLevele:
+        return redirect(url_for(redirectTo))

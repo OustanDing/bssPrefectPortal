@@ -42,8 +42,7 @@ def index():
     db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],))
     creds = db.fetchall()
 
-    if creds[0][14] == 'Executive':
-        return redirect(url_for('indexe'))
+    checkPositionPermission("Prefect","indexe")
 
     db.execute("SELECT * FROM completed WHERE id = ?", (session['user_id'],))
     events = db.fetchall()
@@ -70,8 +69,7 @@ def indexe():
     db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],))
     creds = db.fetchall()
 
-    if creds[0][14] == 'Prefect':
-        return redirect(url_for('index'))
+    checkPositionPermission("Executive","index")
 
     userGroup = creds[0][8]
 
@@ -158,6 +156,7 @@ def indexe():
 @app.route('/adde', methods = ['GET', 'POST'])
 @login_required
 def adde():
+    checkPositionPermission("Executive","index")
     if request.method == 'GET':
         db.execute('SELECT leader FROM users WHERE position = "Executive"')
         leaderData = db.fetchall()
@@ -216,11 +215,13 @@ def adde():
 @app.route('/approvee')
 @login_required
 def approvee():
+    checkPositionPermission("Executive","index")
     return render_template('approvee.html', currentaddress = None)
 
 @app.route('/requestede')
 @login_required
 def requestede():
+    checkPositionPermission("Executive","index")
     requested = []
     totalreq = 0
 
@@ -254,6 +255,7 @@ def requestede():
 @app.route('/approvede')
 @login_required
 def approvede():
+    checkPositionPermission("Executive","index")
     approved = []
     totalapp = 0
 
@@ -287,6 +289,7 @@ def approvede():
 @app.route('/confirmede')
 @login_required
 def confirmede():
+    checkPositionPermission("Executive","index")
     confirmed = []
     totalcon = 0
 
@@ -320,6 +323,7 @@ def confirmede():
 @app.route('/declinede')
 @login_required
 def declinede():
+    checkPositionPermission("Executive","index")
     declined = []
     totaldec = 0
 
@@ -437,6 +441,7 @@ def unconfirm(eventCode, shift, id):
 @app.route('/change', methods = ['GET', 'POST'])
 @login_required
 def change():
+    checkPositionPermission("Prefect","changee")
     '''Change password'''
 
     # check if information is sent
@@ -486,6 +491,7 @@ def change():
 @app.route('/changee', methods = ['GET', 'POST'])
 @login_required
 def changee():
+    checkPositionPermission("Executive","index")
     '''Change password'''
 
     # check if information is sent
@@ -535,7 +541,7 @@ def changee():
 @app.route('/edit', methods = ['GET', 'POST'])
 @login_required
 def edit():
-
+    checkPositionPermission("Prefect","edite")
     if request.method == 'GET':
         # return user information from database
         db.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
@@ -603,11 +609,14 @@ def edit():
 @app.route('/edite', methods = ['GET', 'POST'])
 @login_required
 def edite():
-
+    checkPositionPermission("Executive","edit")
     if request.method == 'GET':
         # return user information from database
         db.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
         creds = db.fetchall()
+
+        if creds[0][14] == 'Prefect':
+        return redirect(url_for('edit'))
 
         prefect = dict([
             ('name', creds[0][2]),
@@ -671,6 +680,7 @@ def edite():
 @app.route('/editprefecte')
 @login_required
 def editprefecte():
+    checkPositionPermission("Executive","index")
     db.execute('SELECT leader FROM users WHERE id = ?', (session['user_id'],))
     groupName = db.fetchall()[0][0]
 
@@ -705,6 +715,7 @@ def editprefecte():
 @app.route('/editprefecte/<prefectId>', methods = ['GET', 'POST'])
 @login_required
 def editPrefectInfo(prefectId):
+    checkPositionPermission("Executive","index")
     if request.method == 'GET':
         db.execute('SELECT leader FROM users WHERE id = ?', (session['user_id'],))
         groupName = db.fetchall()[0][0]
@@ -751,6 +762,7 @@ def editPrefectInfo(prefectId):
 @app.route('/deleteprefecte/<prefectId>')
 @login_required
 def deletePrefect(prefectId):
+    checkPositionPermission("Executive","index")
     db.execute('DELETE FROM users WHERE id = ?', (prefectId,))
     db.execute('DELETE FROM signup WHERE id = ?', (prefectId,))
     db.execute('DELETE FROM completed WHERE id = ?', (prefectId,))
@@ -763,6 +775,7 @@ def deletePrefect(prefectId):
 @app.route('/resetPass/<prefectId>')
 @login_required
 def resetPass(prefectId):
+    checkPositionPermission("Executive","index")
     db.execute('UPDATE users SET hash = ? WHERE id = ?', (
         generate_password_hash('1234'),
         prefectId
@@ -774,6 +787,7 @@ def resetPass(prefectId):
 @app.route('/events')
 @login_required
 def events():
+    checkPositionPermission("Prefect","eventse")
     # Get user's registered events
     db.execute('SELECT * FROM signup WHERE id = ?', (session['user_id'],))
     registeredEvents = db.fetchall()
@@ -835,6 +849,7 @@ def withdraw(eventCode):
 @app.route('/signup/<eventCode>/<shift>')
 @login_required
 def signup(eventCode, shift):
+
     # Add to user's registered events
     db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], session['user_id']))
     conn.commit()
@@ -844,7 +859,7 @@ def signup(eventCode, shift):
 @app.route('/eventse', methods = ['GET', 'POST'])
 @login_required
 def eventse():
-
+    checkPositionPermission("Executive","events")
     if request.method == 'GET':
         db.execute('SELECT * FROM events')
         eventData = db.fetchall()
@@ -952,6 +967,7 @@ def eventse():
 @app.route('/eventhide/<eventCode>/<shift>')
 @login_required
 def eventhide(eventCode, shift):
+    checkPositionPermission("Executive","index")
     db.execute('UPDATE events SET visible = "no" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
@@ -960,6 +976,7 @@ def eventhide(eventCode, shift):
 @app.route('/eventshow/<eventCode>/<shift>')
 @login_required
 def eventshow(eventCode, shift):
+    checkPositionPermission("Executive","index")
     db.execute('UPDATE events SET visible = "yes" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
@@ -968,6 +985,7 @@ def eventshow(eventCode, shift):
 @app.route('/eventremove/<eventCode>/<shift>')
 @login_required
 def eventremove(eventCode, shift):
+    checkPositionPermission("Executive","index")
     db.execute('DELETE FROM events WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
@@ -999,6 +1017,7 @@ def eventremove(eventCode, shift):
 @app.route('/eventdone/<eventCode>/<shift>')
 @login_required
 def eventdone(eventCode, shift):
+    checkPositionPermission("Executive","index")
     db.execute('UPDATE events SET visible = "no", done = "yes" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
@@ -1024,6 +1043,7 @@ def eventdone(eventCode, shift):
 @app.route('/eventundone/<eventCode>/<shift>')
 @login_required
 def eventundone(eventCode, shift):
+    checkPositionPermission("Executive","index")
     db.execute('UPDATE events SET done = "no" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
@@ -1049,6 +1069,7 @@ def eventundone(eventCode, shift):
 @app.route('/files')
 @login_required
 def files():
+    checkPositionPermission("Prefect","filese")
     db.execute('SELECT * FROM files')
     fileData = db.fetchall()
 
@@ -1062,7 +1083,7 @@ def files():
 @app.route('/filese', methods = ['GET', 'POST'])
 @login_required
 def filese():
-
+    checkPositionPermission("Executive","files")
     if request.method == 'GET':
         db.execute('SELECT * FROM files')
         fileData = db.fetchall()
@@ -1110,6 +1131,7 @@ def filese():
 @app.route('/hide/<fileId>')
 @login_required
 def hide(fileId):
+    checkPositionPermission("Executive","index")
     db.execute('UPDATE files SET visible = "no" WHERE id = ?', (fileId,))
     conn.commit()
 
@@ -1118,6 +1140,7 @@ def hide(fileId):
 @app.route('/show/<fileId>')
 @login_required
 def show(fileId):
+    checkPositionPermission("Executive","index")
     db.execute('UPDATE files SET visible = "yes" WHERE id = ?', (fileId,))
     conn.commit()
 
@@ -1126,6 +1149,7 @@ def show(fileId):
 @app.route('/remove/<fileId>')
 @login_required
 def remove(fileId):
+    checkPositionPermission("Executive","index")
     db.execute('DELETE FROM files WHERE id = ?', (fileId,))
     conn.commit()
 
@@ -1187,6 +1211,7 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
+    checkPositionPermission("Prefect","profilee")
     '''Display user information'''
 
     # retrieve user information from database
@@ -1211,6 +1236,7 @@ def profile():
 @app.route('/profilee')
 @login_required
 def profilee():
+    checkPositionPermission("Executive","profile")
     '''Display user information'''
 
     # retrieve user information from database
@@ -1289,6 +1315,7 @@ def register():
 '''
 @app.route('/viewe')
 def viewe():
+    checkPositionPermission("Executive","index")
     confirmed = []
     active = []
 
@@ -1348,6 +1375,7 @@ def viewe():
 @app.route('/checke')
 @login_required
 def checke():
+    checkPositionPermission("Executive","index")
     events = []
 
     db.execute('SELECT * FROM events WHERE done = "no"')
@@ -1371,6 +1399,7 @@ def checke():
 @app.route('/checke/<eventId>')
 @login_required
 def checkeventee(eventId):
+    checkPositionPermission("Executive","index")
     # Retrieve options
     events = []
 
@@ -1459,6 +1488,7 @@ def checkeventee(eventId):
 @app.route('/checkin/<eventId>/<prefectId>')
 @login_required
 def checkin(eventId, prefectId):
+    checkPositionPermission("Executive","index")
     db.execute('UPDATE signup SET checkin = "yes" WHERE eventCode = ? AND id = ?', (eventId, prefectId))
     conn.commit()
 
@@ -1467,6 +1497,7 @@ def checkin(eventId, prefectId):
 @app.route('/uncheckin/<eventId>/<prefectId>')
 @login_required
 def uncheckin(eventId, prefectId):
+    checkPositionPermission("Executive","index")
     db.execute('UPDATE signup SET checkin = "no" WHERE eventCode = ? AND id = ?', (eventId, prefectId))
     conn.commit()
 
@@ -1475,6 +1506,7 @@ def uncheckin(eventId, prefectId):
 @app.route('/checkout/<eventCode>/<shift>/<id>')
 @login_required
 def checkout(eventCode, shift, id):
+    checkPositionPermission("Executive","index")
     db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
     db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
@@ -1490,6 +1522,7 @@ def checkout(eventCode, shift, id):
 @app.route('/checkbackin/<eventCode>/<shift>/<id>')
 @login_required
 def checkbackin(eventCode, shift, id):
+    checkPositionPermission("Executive","index")
     db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
     db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
@@ -1507,6 +1540,7 @@ def checkbackin(eventCode, shift, id):
 @app.route('/uncheckinfromcheckout/<eventCode>/<shift>/<id>')
 @login_required
 def uncheckinfromcheckout(eventCode, shift, id):
+    checkPositionPermission("Executive","index")
     db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
     db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
