@@ -7,7 +7,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from tempfile import mkdtemp
 from operator import itemgetter
 
-
 # Configure application
 app = Flask(__name__)
 
@@ -15,6 +14,7 @@ app.secret_key = 'ilikedogs'
 
 # Templates auto-reload
 app.config['TEMPLATES_AUTO_RELOAD'] = True
+
 
 # Clear cache after
 @app.after_request
@@ -24,26 +24,25 @@ def after_request(response):
     response.headers['Pragma'] = 'no-cache'
     return response
 
+
 # Use filesystem instead of signed cookies
 app.config['SESSION_FILE_DIR'] = mkdtemp()
 app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 
-
+# Connecting to prefects.db
 conn = sqlite3.connect('/home/bssprefectportal/app/prefects.db', check_same_thread=False)
 db = conn.cursor()
 
 
 @app.route('/')
 @login_required
+@checkPositionPermission("Prefect", "indexe")
 def index():
     ''' Display user dashboard '''
 
     db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],))
     creds = db.fetchall()
-
-    if creds[0][14] == 'Executive':
-        return redirect(url_for('indexe'))
 
     db.execute("SELECT * FROM completed WHERE id = ?", (session['user_id'],))
     events = db.fetchall()
@@ -58,20 +57,19 @@ def index():
         ('leader', creds[0][8]),
         ('registered', [(event[0], event[2], lookup(event[1], event[2])['value']) for event in future]),
         ('position', creds[0][14])
-        ])
+    ])
 
     return render_template('index.html', prefect=prefect)
 
+
 @app.route('/indexe')
 @login_required
+@checkPositionPermission("Executive", "index")
 def indexe():
     ''' Display user dashboard '''
 
     db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],))
     creds = db.fetchall()
-
-    if creds[0][14] == 'Prefect':
-        return redirect(url_for('index'))
 
     userGroup = creds[0][8]
 
@@ -81,22 +79,22 @@ def indexe():
     prefect = dict([
         ('name', creds[0][2]),
         ('position', creds[0][14])
-        ])
+    ])
 
     prefects = []
 
     for member in members:
         info = dict([
-        ('name', member[2]),
-        ('credits', member[4]),
-        ('gender', member[6]),
-        ('grade', member[5]),
-        ('size', member[9]),
-        ('email', member[13]),
-        ('home', member[11]),
-        ('cell', member[12]),
-        ('dietary', member[7]),
-        ('status', member[10])
+            ('name', member[2]),
+            ('credits', member[4]),
+            ('gender', member[6]),
+            ('grade', member[5]),
+            ('size', member[9]),
+            ('email', member[13]),
+            ('home', member[11]),
+            ('cell', member[12]),
+            ('dietary', member[7]),
+            ('status', member[10])
         ])
 
         db.execute("SELECT * FROM completed WHERE id = ?", (member[0],))
@@ -110,7 +108,7 @@ def indexe():
 
         prefects.append(info)
 
-    prefects = sorted(prefects, key = itemgetter('name'))
+    prefects = sorted(prefects, key=itemgetter('name'))
 
     total = {
         'male': 0,
@@ -124,7 +122,7 @@ def indexe():
         'xl': 0,
         'new': 0,
         'returning': 0
-        }
+    }
 
     for member in members:
         if member[6] == 'Male':
@@ -153,10 +151,12 @@ def indexe():
         elif member[10] == 'Returning':
             total['returning'] += 1
 
-    return render_template('indexe.html', prefect = prefect, prefects = prefects, total = total)
+    return render_template('indexe.html', prefect=prefect, prefects=prefects, total=total)
 
-@app.route('/adde', methods = ['GET', 'POST'])
+
+@app.route('/adde', methods=['GET', 'POST'])
 @login_required
+@checkPositionPermission("Executive", "index")
 def adde():
     if request.method == 'GET':
         db.execute('SELECT leader FROM users WHERE position = "Executive"')
@@ -167,7 +167,7 @@ def adde():
         db.execute('SELECT leader FROM users WHERE id = ?', (session['user_id'],))
         currentGroup = db.fetchall()[0][0]
 
-        return render_template('adde.html', leaders = leaders, currentGroup = currentGroup)
+        return render_template('adde.html', leaders=leaders, currentGroup=currentGroup)
 
     else:
         db.execute('SELECT username FROM users')
@@ -203,23 +203,27 @@ def adde():
             return redirect(url_for('adde'))
 
         db.execute('INSERT INTO users (username, name, hash, grade, leader) VALUES (?, ?, ?, ?, ?)', (
-                request.form.get('username'),
-                request.form.get('name'),
-                generate_password_hash(request.form.get('password')),
-                request.form.get('grade'),
-                request.form.get('leader')))
+            request.form.get('username'),
+            request.form.get('name'),
+            generate_password_hash(request.form.get('password')),
+            request.form.get('grade'),
+            request.form.get('leader')))
         conn.commit()
 
         flash('Registered!')
         return redirect(url_for('adde'))
 
+
 @app.route('/approvee')
 @login_required
+@checkPositionPermission("Executive", "index")
 def approvee():
-    return render_template('approvee.html', currentaddress = None)
+    return render_template('approvee.html', currentaddress=None)
+
 
 @app.route('/requestede')
 @login_required
+@checkPositionPermission("Executive", "index")
 def requestede():
     requested = []
     totalreq = 0
@@ -240,19 +244,21 @@ def requestede():
                 'eventCode': request[1],
                 'prefect': prefectName,
                 'group': prefectGroup,
-                'credits':  prefectCredits,
+                'credits': prefectCredits,
                 'shift': request[2],
                 'value': request[3],
                 'id': request[4]
-                })
+            })
             totalreq += 1
 
-    requested = sorted(requested, key = itemgetter('credits'))
+    requested = sorted(requested, key=itemgetter('credits'))
 
-    return render_template('requestede.html', currentaddress = 'requestede', totalreq = totalreq, requested = requested)
+    return render_template('requestede.html', currentaddress='requestede', totalreq=totalreq, requested=requested)
+
 
 @app.route('/approvede')
 @login_required
+@checkPositionPermission("Executive", "index")
 def approvede():
     approved = []
     totalapp = 0
@@ -273,19 +279,21 @@ def approvede():
                 'eventCode': request[1],
                 'prefect': prefectName,
                 'group': prefectGroup,
-                'credits':  prefectCredits,
+                'credits': prefectCredits,
                 'shift': request[2],
                 'value': request[3],
                 'id': request[4]
-                })
+            })
             totalapp += 1
 
-    approved = sorted(approved, key = itemgetter('prefect'))
+    approved = sorted(approved, key=itemgetter('prefect'))
 
-    return render_template('approvede.html', currentaddress = 'approvede', totalapp = totalapp, approved = approved)
+    return render_template('approvede.html', currentaddress='approvede', totalapp=totalapp, approved=approved)
+
 
 @app.route('/confirmede')
 @login_required
+@checkPositionPermission("Executive", "index")
 def confirmede():
     confirmed = []
     totalcon = 0
@@ -306,19 +314,21 @@ def confirmede():
                 'eventCode': request[1],
                 'prefect': prefectName,
                 'group': prefectGroup,
-                'credits':  prefectCredits,
+                'credits': prefectCredits,
                 'shift': request[2],
                 'value': request[3],
                 'id': request[4]
-                })
+            })
             totalcon += 1
 
-    confirmed = sorted(confirmed, key = itemgetter('prefect'))
+    confirmed = sorted(confirmed, key=itemgetter('prefect'))
 
-    return render_template('confirmede.html', currentaddress = 'confirmede', totalcon = totalcon, confirmed = confirmed)
+    return render_template('confirmede.html', currentaddress='confirmede', totalcon=totalcon, confirmed=confirmed)
+
 
 @app.route('/declinede')
 @login_required
+@checkPositionPermission("Executive", "index")
 def declinede():
     declined = []
     totaldec = 0
@@ -339,103 +349,121 @@ def declinede():
                 'eventCode': request[1],
                 'prefect': prefectName,
                 'group': prefectGroup,
-                'credits':  prefectCredits,
+                'credits': prefectCredits,
                 'shift': request[2],
                 'value': request[3],
                 'id': request[4]
-                })
+            })
             totaldec += 1
 
-    declined = sorted(declined, key = itemgetter('prefect'))
+    declined = sorted(declined, key=itemgetter('prefect'))
 
-    return render_template('declinede.html', currentaddress = 'declinede', totaldec = totaldec, declined = declined)
+    return render_template('declinede.html', currentaddress='declinede', totaldec=totaldec, declined=declined)
+
 
 @app.route('/approve/<eventCode>/<shift>/<id>')
 @login_required
 def approve(eventCode, shift, id):
     db.execute('DELETE FROM requested WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     conn.commit()
 
     return redirect(url_for('requestede'))
+
 
 @app.route('/approvefromdeclined/<eventCode>/<shift>/<id>')
 @login_required
 def approvefromdeclined(eventCode, shift, id):
     db.execute('DELETE FROM declined WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     conn.commit()
 
     return redirect(url_for('declinede'))
+
 
 @app.route('/unapprove/<eventCode>/<shift>/<id>')
 @login_required
 def unapprove(eventCode, shift, id):
     db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     conn.commit()
 
     return redirect(url_for('approvede'))
+
 
 @app.route('/decline/<eventCode>/<shift>/<id>')
 @login_required
 def decline(eventCode, shift, id):
     db.execute('DELETE FROM requested WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO declined (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO declined (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     conn.commit()
 
     return redirect(url_for('requestede'))
+
 
 @app.route('/declinefromapproved/<eventCode>/<shift>/<id>')
 @login_required
 def declinefromapproved(eventCode, shift, id):
     db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO declined (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO declined (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     conn.commit()
 
     return redirect(url_for('approvede'))
+
 
 @app.route('/undecline/<eventCode>/<shift>/<id>')
 @login_required
 def undecline(eventCode, shift, id):
     db.execute('DELETE FROM declined WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     conn.commit()
 
     return redirect(url_for('declinede'))
+
 
 @app.route('/confirm/<eventCode>/<shift>/<id>')
 @login_required
 def confirm(eventCode, shift, id):
     db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (
         currentCredits + lookup(eventCode, shift)['value'],
         id
-        ))
+    ))
     conn.commit()
 
     return redirect(url_for('approvede'))
+
 
 @app.route('/unconfirm/<eventCode>/<shift>/<id>')
 @login_required
 def unconfirm(eventCode, shift, id):
     db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (
         currentCredits - lookup(eventCode, shift)['value'],
         id
-        ))
+    ))
     conn.commit()
 
     return redirect(url_for('confirmede'))
 
-@app.route('/change', methods = ['GET', 'POST'])
+
+@app.route('/change', methods=['GET', 'POST'])
 @login_required
+@checkPositionPermission("Prefect", "changee")
 def change():
     '''Change password'''
 
@@ -449,7 +477,7 @@ def change():
             return render_template('change.html')
 
         db.execute("SELECT hash FROM users WHERE id = ?",
-            (session['user_id'],))
+                   (session['user_id'],))
         password = db.fetchall()
 
         # check if password is not empty and matches current password
@@ -473,7 +501,7 @@ def change():
         # update user's password in users database
         db.execute("UPDATE users SET hash = ? WHERE id = ?",
                    (generate_password_hash(request.form.get("new")),
-                   session['user_id']))
+                    session['user_id']))
         conn.commit()
 
         flash('Password changed!')  # notify of successful registration
@@ -483,8 +511,10 @@ def change():
     else:
         return render_template("change.html")
 
-@app.route('/changee', methods = ['GET', 'POST'])
+
+@app.route('/changee', methods=['GET', 'POST'])
 @login_required
+@checkPositionPermission("Executive", "index")
 def changee():
     '''Change password'''
 
@@ -498,7 +528,7 @@ def changee():
             return render_template('changee.html')
 
         db.execute("SELECT hash FROM users WHERE id = ?",
-            (session['user_id'],))
+                   (session['user_id'],))
         password = db.fetchall()
 
         # check if password is not empty and matches current password
@@ -522,7 +552,7 @@ def changee():
         # update user's password in users database
         db.execute("UPDATE users SET hash = ? WHERE id = ?",
                    (generate_password_hash(request.form.get("new")),
-                   session['user_id']))
+                    session['user_id']))
         conn.commit()
 
         flash('Password changed!')  # notify of successful registration
@@ -532,10 +562,11 @@ def changee():
     else:
         return render_template("changee.html")
 
-@app.route('/edit', methods = ['GET', 'POST'])
-@login_required
-def edit():
 
+@app.route('/edit', methods=['GET', 'POST'])
+@login_required
+@checkPositionPermission("Prefect", "edite")
+def edit():
     if request.method == 'GET':
         # return user information from database
         db.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
@@ -552,9 +583,9 @@ def edit():
             ('home', creds[0][11]),
             ('cell', creds[0][12]),
             ('email', creds[0][13])
-            ])
+        ])
 
-        return render_template('edit.html', prefect = prefect)
+        return render_template('edit.html', prefect=prefect)
 
     else:
         # return user information from database
@@ -572,7 +603,7 @@ def edit():
             ('home', creds[0][11]),
             ('cell', creds[0][12]),
             ('email', creds[0][13])
-            ])
+        ])
 
         inputted = {
             'grade': request.form.get('grade'),
@@ -587,27 +618,34 @@ def edit():
 
         if not request.form.get('home') or not request.form.get('cell') or not request.form.get('email'):
             flash('Fields were left empty. Please try again.')
-            return render_template('edit.html', prefect = prefect)
+            return render_template('edit.html', prefect=prefect)
             # return redirect(url_for('edit'))
 
         elif re.search(r'[^@]+@[^@]+\.[^@]+', request.form.get('email')) == None:
             flash('Email is invalid. Please try again.')
-            return render_template('edit.html', prefect = prefect)
+            return render_template('edit.html', prefect=prefect)
 
-        db.execute('UPDATE users SET grade = ?, gender = ?, dietary = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?', (inputted['grade'], inputted['gender'], inputted['dietary'], inputted['size'], inputted['status'], inputted['home'], inputted['cell'], inputted['email'], session['user_id']))
+        db.execute(
+            'UPDATE users SET grade = ?, gender = ?, dietary = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
+            (inputted['grade'], inputted['gender'], inputted['dietary'], inputted['size'], inputted['status'],
+             inputted['home'], inputted['cell'], inputted['email'], session['user_id']))
         conn.commit()
 
         flash('Updated!')
         return redirect(url_for('profile'))
 
-@app.route('/edite', methods = ['GET', 'POST'])
-@login_required
-def edite():
 
+@app.route('/edite', methods=['GET', 'POST'])
+@login_required
+@checkPositionPermission("Executive", "edit")
+def edite():
     if request.method == 'GET':
         # return user information from database
         db.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
         creds = db.fetchall()
+
+        if creds[0][14] == 'Prefect':
+            return redirect(url_for('edit'))
 
         prefect = dict([
             ('name', creds[0][2]),
@@ -620,9 +658,9 @@ def edite():
             ('home', creds[0][11]),
             ('cell', creds[0][12]),
             ('email', creds[0][13])
-            ])
+        ])
 
-        return render_template('edite.html', prefect = prefect)
+        return render_template('edite.html', prefect=prefect)
 
     else:
         # return user information from database
@@ -640,7 +678,7 @@ def edite():
             ('home', creds[0][11]),
             ('cell', creds[0][12]),
             ('email', creds[0][13])
-            ])
+        ])
 
         inputted = {
             'grade': request.form.get('grade'),
@@ -655,21 +693,26 @@ def edite():
 
         if not request.form.get('home') or not request.form.get('cell') or not request.form.get('email'):
             flash('Fields were left empty. Please try again.')
-            return render_template('edite.html', prefect = prefect)
+            return render_template('edite.html', prefect=prefect)
             # return redirect(url_for('edit'))
 
         elif re.search(r'[^@]+@[^@]+\.[^@]+', request.form.get('email')) == None:
             flash('Email is invalid. Please try again.')
-            return render_template('edite.html', prefect = prefect)
+            return render_template('edite.html', prefect=prefect)
 
-        db.execute('UPDATE users SET grade = ?, gender = ?, dietary = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?', (inputted['grade'], inputted['gender'], inputted['dietary'], inputted['size'], inputted['status'], inputted['home'], inputted['cell'], inputted['email'], session['user_id']))
+        db.execute(
+            'UPDATE users SET grade = ?, gender = ?, dietary = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
+            (inputted['grade'], inputted['gender'], inputted['dietary'], inputted['size'], inputted['status'],
+             inputted['home'], inputted['cell'], inputted['email'], session['user_id']))
         conn.commit()
 
         flash('Updated!')
         return redirect(url_for('profilee'))
 
+
 @app.route('/editprefecte')
 @login_required
+@checkPositionPermission("Executive", "index")
 def editprefecte():
     db.execute('SELECT leader FROM users WHERE id = ?', (session['user_id'],))
     groupName = db.fetchall()[0][0]
@@ -700,10 +743,13 @@ def editprefecte():
 
     leaders = [leader[0] for leader in leaderData]
 
-    return render_template('editprefecte.html', prefects = prefects, leaders = leaders, prefect = prefect, visibility = 'hidden')
+    return render_template('editprefecte.html', prefects=prefects, leaders=leaders, prefect=prefect,
+                           visibility='hidden')
 
-@app.route('/editprefecte/<prefectId>', methods = ['GET', 'POST'])
+
+@app.route('/editprefecte/<prefectId>', methods=['GET', 'POST'])
 @login_required
+@checkPositionPermission("Executive", "index")
 def editPrefectInfo(prefectId):
     if request.method == 'GET':
         db.execute('SELECT leader FROM users WHERE id = ?', (session['user_id'],))
@@ -740,16 +786,24 @@ def editPrefectInfo(prefectId):
 
         leaders = [leader[0] for leader in leaderData]
 
-        return render_template('editprefecte.html', prefects = prefects, leaders = leaders, prefect = prefect, visibility = 'visible')
+        return render_template('editprefecte.html', prefects=prefects, leaders=leaders, prefect=prefect,
+                               visibility='visible')
     else:
-        db.execute('UPDATE users SET name = ?, username = ?, grade = ?, gender = ?, dietary = ?, leader = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?', (request.form.get('name'), request.form.get('username'), request.form.get('grade'), request.form.get('gender'), request.form.get('dietary'), request.form.get('leader'), request.form.get('size'), request.form.get('status'), request.form.get('home'), request.form.get('cell'), request.form.get('email'), prefectId))
+        db.execute(
+            'UPDATE users SET name = ?, username = ?, grade = ?, gender = ?, dietary = ?, leader = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
+            (request.form.get('name'), request.form.get('username'), request.form.get('grade'),
+             request.form.get('gender'), request.form.get('dietary'), request.form.get('leader'),
+             request.form.get('size'), request.form.get('status'), request.form.get('home'), request.form.get('cell'),
+             request.form.get('email'), prefectId))
         conn.commit()
 
         flash('Updated!')
         return redirect('/editprefecte/' + prefectId)
 
+
 @app.route('/deleteprefecte/<prefectId>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def deletePrefect(prefectId):
     db.execute('DELETE FROM users WHERE id = ?', (prefectId,))
     db.execute('DELETE FROM signup WHERE id = ?', (prefectId,))
@@ -760,19 +814,23 @@ def deletePrefect(prefectId):
 
     return redirect(url_for('indexe'))
 
+
 @app.route('/resetPass/<prefectId>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def resetPass(prefectId):
     db.execute('UPDATE users SET hash = ? WHERE id = ?', (
         generate_password_hash('1234'),
         prefectId
-        ))
+    ))
     conn.commit()
 
-    return redirect(url_for('editPrefectInfo', prefectId = prefectId))
+    return redirect(url_for('editPrefectInfo', prefectId=prefectId))
+
 
 @app.route('/events')
 @login_required
+@checkPositionPermission("Prefect", "eventse")
 def events():
     # Get user's registered events
     db.execute('SELECT * FROM signup WHERE id = ?', (session['user_id'],))
@@ -814,14 +872,19 @@ def events():
         'shift': event[2],
         'value': event[3],
         'code': event[1]
-    } for event in availableEvents if event[1] not in [event[1] for event in registeredEvents] and event[1] not in [event[1] for event in requestedEvents] and event[1] not in [event[1] for event in completedEvents]]
+    } for event in availableEvents if
+        event[1] not in [event[1] for event in registeredEvents] and event[1] not in [event[1] for event in
+                                                                                      requestedEvents] and event[
+            1] not in [event[1] for event in completedEvents]]
 
     total = 0
 
     for event in completedEvents:
         total += float(event[3])
 
-    return render_template('events.html', registered = registered, requested = requested, available = available, completed = completed, total = total)
+    return render_template('events.html', registered=registered, requested=requested, available=available,
+                           completed=completed, total=total)
+
 
 @app.route('/withdraw/<eventCode>')
 @login_required
@@ -832,19 +895,23 @@ def withdraw(eventCode):
 
     return redirect(url_for('events'))
 
+
 @app.route('/signup/<eventCode>/<shift>')
 @login_required
+@checkPositionPermission("Executive", "events")
 def signup(eventCode, shift):
     # Add to user's registered events
-    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], session['user_id']))
+    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (
+        lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], session['user_id']))
     conn.commit()
 
     return redirect(url_for('events'))
 
-@app.route('/eventse', methods = ['GET', 'POST'])
-@login_required
-def eventse():
 
+@app.route('/eventse', methods=['GET', 'POST'])
+@login_required
+@checkPositionPermission("Executive", "events")
+def eventse():
     if request.method == 'GET':
         db.execute('SELECT * FROM events')
         eventData = db.fetchall()
@@ -854,27 +921,29 @@ def eventse():
             'eventCode': event[1],
             'shift': event[2],
             'value': event[3],
-            } for event in eventData if event[4] == 'yes' and event[5] != 'yes']
+        } for event in eventData if event[4] == 'yes' and event[5] != 'yes']
 
         invisible = [{
             'eventName': event[0],
             'eventCode': event[1],
             'shift': event[2],
             'value': event[3],
-            } for event in eventData if event[4] == 'no' and event[5] != 'yes']
+        } for event in eventData if event[4] == 'no' and event[5] != 'yes']
 
         finished = [{
             'eventName': event[0],
             'eventCode': event[1],
             'shift': event[2],
             'value': event[3],
-            } for event in eventData if event[4] == 'no' and event[5] == 'yes']
+        } for event in eventData if event[4] == 'no' and event[5] == 'yes']
 
         totalVisible = len(visible)
         totalInvisible = len(invisible)
         totalFinished = len(finished)
 
-        return render_template('eventse.html', visibleEvents = visible, invisibleEvents = invisible, finishedEvents = finished, totalvis = totalVisible, totalinvis = totalInvisible, totalfinished = totalFinished)
+        return render_template('eventse.html', visibleEvents=visible, invisibleEvents=invisible,
+                               finishedEvents=finished, totalvis=totalVisible, totalinvis=totalInvisible,
+                               totalfinished=totalFinished)
 
     else:
         if not request.form.get('name'):
@@ -894,42 +963,44 @@ def eventse():
         if request.form.get('shift1') and request.form.get('shift2') and request.form.get('shift3'):
             if request.form.get('visible'):
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
-                    )
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
+                           )
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes')
-                    )
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes')
+                           )
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 3, float(request.form.get('shift1')) + float(request.form.get('shift2')), 'yes')
-                    )
+                           (request.form.get('name'), newCode, 3,
+                            float(request.form.get('shift1')) + float(request.form.get('shift2')), 'yes')
+                           )
                 conn.commit()
             else:
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
-                    )
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
+                           )
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no')
-                    )
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no')
+                           )
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 3, float(request.form.get('shift1')) + float(request.form.get('shift2')), 'no')
-                    )
+                           (request.form.get('name'), newCode, 3,
+                            float(request.form.get('shift1')) + float(request.form.get('shift2')), 'no')
+                           )
                 conn.commit()
         elif request.form.get('shift1') and request.form.get('shift2'):
             if request.form.get('visible'):
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
-                    )
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
+                           )
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes')
-                    )
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes')
+                           )
                 conn.commit()
             else:
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
-                    )
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
+                           )
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no')
-                    )
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no')
+                           )
                 conn.commit()
         elif request.form.get('shift1') and request.form.get('shift3'):
             flash('Cannot input value for Both Shifts without value for Shift 2')
@@ -937,36 +1008,42 @@ def eventse():
         elif request.form.get('shift1'):
             if request.form.get('visible'):
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
-                    )
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
+                           )
                 conn.commit()
             else:
                 db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                    (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
-                    )
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
+                           )
                 conn.commit()
 
         flash('Event added!')
         return redirect(url_for('eventse'))
 
+
 @app.route('/eventhide/<eventCode>/<shift>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def eventhide(eventCode, shift):
     db.execute('UPDATE events SET visible = "no" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
     return redirect(url_for('eventse'))
 
+
 @app.route('/eventshow/<eventCode>/<shift>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def eventshow(eventCode, shift):
     db.execute('UPDATE events SET visible = "yes" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
     return redirect(url_for('eventse'))
 
+
 @app.route('/eventremove/<eventCode>/<shift>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def eventremove(eventCode, shift):
     db.execute('DELETE FROM events WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
@@ -996,8 +1073,10 @@ def eventremove(eventCode, shift):
 
     return redirect(url_for('eventse'))
 
+
 @app.route('/eventdone/<eventCode>/<shift>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def eventdone(eventCode, shift):
     db.execute('UPDATE events SET visible = "no", done = "yes" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
@@ -1021,8 +1100,10 @@ def eventdone(eventCode, shift):
 
     return redirect(url_for('eventse'))
 
+
 @app.route('/eventundone/<eventCode>/<shift>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def eventundone(eventCode, shift):
     db.execute('UPDATE events SET done = "no" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
@@ -1046,8 +1127,10 @@ def eventundone(eventCode, shift):
 
     return redirect(url_for('eventse'))
 
+
 @app.route('/files')
 @login_required
+@checkPositionPermission("Prefect", "filese")
 def files():
     db.execute('SELECT * FROM files')
     fileData = db.fetchall()
@@ -1055,14 +1138,15 @@ def files():
     fileDict = [{
         'name': file[0],
         'link': file[1]
-        } for file in fileData if file[3] == 'yes']
+    } for file in fileData if file[3] == 'yes']
 
-    return render_template('files.html', files = fileDict)
+    return render_template('files.html', files=fileDict)
 
-@app.route('/filese', methods = ['GET', 'POST'])
+
+@app.route('/filese', methods=['GET', 'POST'])
 @login_required
+@checkPositionPermission("Executive", "files")
 def filese():
-
     if request.method == 'GET':
         db.execute('SELECT * FROM files')
         fileData = db.fetchall()
@@ -1071,18 +1155,19 @@ def filese():
             'name': file[0],
             'link': file[1],
             'id': file[2]
-            } for file in fileData if file[3] == 'yes']
+        } for file in fileData if file[3] == 'yes']
 
         invisible = [{
             'name': file[0],
             'link': file[1],
             'id': file[2]
-            } for file in fileData if file[3] == 'no']
+        } for file in fileData if file[3] == 'no']
 
         totalVisible = len(visible)
         totalInvisible = len(invisible)
 
-        return render_template('filese.html', visibleFiles = visible, invisibleFiles = invisible, totalvis = totalVisible, totalinvis = totalInvisible)
+        return render_template('filese.html', visibleFiles=visible, invisibleFiles=invisible, totalvis=totalVisible,
+                               totalinvis=totalInvisible)
 
     else:
         if re.search(r'(?:.+\.)+.+', request.form.get('link')) == None:
@@ -1098,40 +1183,49 @@ def filese():
             return redirect(url_for('filese'))
 
         if request.form.get('visible'):
-            db.execute('INSERT INTO files (name, link, visible) VALUES (?, ?, ?)', (request.form.get('name'), request.form.get('link'), 'yes'))
+            db.execute('INSERT INTO files (name, link, visible) VALUES (?, ?, ?)',
+                       (request.form.get('name'), request.form.get('link'), 'yes'))
             conn.commit()
 
         else:
-            db.execute('INSERT INTO files (name, link, visible) VALUES (?, ?, ?)', (request.form.get('name'), request.form.get('link'), 'no'))
+            db.execute('INSERT INTO files (name, link, visible) VALUES (?, ?, ?)',
+                       (request.form.get('name'), request.form.get('link'), 'no'))
             conn.commit()
 
         return redirect(url_for('filese'))
 
+
 @app.route('/hide/<fileId>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def hide(fileId):
     db.execute('UPDATE files SET visible = "no" WHERE id = ?', (fileId,))
     conn.commit()
 
     return redirect(url_for('filese'))
 
+
 @app.route('/show/<fileId>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def show(fileId):
     db.execute('UPDATE files SET visible = "yes" WHERE id = ?', (fileId,))
     conn.commit()
 
     return redirect(url_for('filese'))
 
+
 @app.route('/remove/<fileId>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def remove(fileId):
     db.execute('DELETE FROM files WHERE id = ?', (fileId,))
     conn.commit()
 
     return redirect(url_for('filese'))
 
-@app.route('/login', methods = ['GET', 'POST'])
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     '''Log user in'''
 
@@ -1174,6 +1268,7 @@ def login():
     else:
         return render_template('login.html')
 
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -1184,8 +1279,10 @@ def logout():
 
     return redirect('/')
 
+
 @app.route('/profile')
 @login_required
+@checkPositionPermission("Prefect", "profilee")
 def profile():
     '''Display user information'''
 
@@ -1204,12 +1301,14 @@ def profile():
         ('home', creds[0][11]),
         ('cell', creds[0][12]),
         ('email', creds[0][13])
-        ])
+    ])
 
-    return render_template('profile.html', prefect = prefect)
+    return render_template('profile.html', prefect=prefect)
+
 
 @app.route('/profilee')
 @login_required
+@checkPositionPermission("Executive", "profile")
 def profilee():
     '''Display user information'''
 
@@ -1228,11 +1327,12 @@ def profilee():
         ('home', creds[0][11]),
         ('cell', creds[0][12]),
         ('email', creds[0][13])
-        ])
+    ])
 
-    return render_template('profilee.html', prefect = prefect)
+    return render_template('profilee.html', prefect=prefect)
 
-@app.route('/register', methods = ['GET', 'POST'])
+
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     '''Register user'''
 
@@ -1273,7 +1373,7 @@ def register():
 
         # Get user's information based on username
         db.execute('SELECT * from users WHERE username = ?',
-            (request.form.get('username'),))
+                   (request.form.get('username'),))
         info = db.fetchall()
 
         # Get user's id
@@ -1286,9 +1386,12 @@ def register():
     else:
         return render_template('register.html')
 
+
 '''
 @app.route('/viewe')
+@checkPositionPermission("Executive","index")
 def viewe():
+
     confirmed = []
     active = []
 
@@ -1345,8 +1448,10 @@ def viewe():
     return render_template('viewe.html', confirmed = confirmed)
 '''
 
+
 @app.route('/checke')
 @login_required
+@checkPositionPermission("Executive", "index")
 def checke():
     events = []
 
@@ -1357,7 +1462,7 @@ def checke():
         tempdict = {
             'title': event[0],
             'id': event[1]
-            }
+        }
         if tempdict not in events:
             events.append(tempdict)
 
@@ -1366,10 +1471,12 @@ def checke():
         'id': None
     }
 
-    return render_template('checke.html', events = events, currentEvent = currentEvent, visibility = 'hidden')
+    return render_template('checke.html', events=events, currentEvent=currentEvent, visibility='hidden')
+
 
 @app.route('/checke/<eventId>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def checkeventee(eventId):
     # Retrieve options
     events = []
@@ -1381,7 +1488,7 @@ def checkeventee(eventId):
         tempdict = {
             'title': event[0],
             'id': event[1]
-            }
+        }
         if tempdict not in events:
             events.append(tempdict)
 
@@ -1412,7 +1519,7 @@ def checkeventee(eventId):
             'id': request[4]
         })
 
-        notIn = sorted(notIn, key = itemgetter('shift', 'name'))
+        notIn = sorted(notIn, key=itemgetter('shift', 'name'))
 
     # Checked in
     In = []
@@ -1432,7 +1539,7 @@ def checkeventee(eventId):
             'id': request[4]
         })
 
-        In = sorted(In, key = itemgetter('shift', 'name'))
+        In = sorted(In, key=itemgetter('shift', 'name'))
 
     # Checked out
     Out = []
@@ -1452,78 +1559,94 @@ def checkeventee(eventId):
             'id': request[4]
         })
 
-        Out = sorted(Out, key = itemgetter('shift', 'name'))
+        Out = sorted(Out, key=itemgetter('shift', 'name'))
 
-    return render_template('checke.html', events = events, currentEvent = currentEvent, notIn = notIn, In = In, Out = Out, visibility = 'visible')
+    return render_template('checke.html', events=events, currentEvent=currentEvent, notIn=notIn, In=In, Out=Out,
+                           visibility='visible')
+
 
 @app.route('/checkin/<eventId>/<prefectId>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def checkin(eventId, prefectId):
     db.execute('UPDATE signup SET checkin = "yes" WHERE eventCode = ? AND id = ?', (eventId, prefectId))
     conn.commit()
 
-    return redirect(url_for('checkeventee', eventId = eventId))
+    return redirect(url_for('checkeventee', eventId=eventId))
+
 
 @app.route('/uncheckin/<eventId>/<prefectId>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def uncheckin(eventId, prefectId):
     db.execute('UPDATE signup SET checkin = "no" WHERE eventCode = ? AND id = ?', (eventId, prefectId))
     conn.commit()
 
-    return redirect(url_for('checkeventee', eventId = eventId))
+    return redirect(url_for('checkeventee', eventId=eventId))
+
 
 @app.route('/checkout/<eventCode>/<shift>/<id>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def checkout(eventCode, shift, id):
     db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (
         currentCredits + lookup(eventCode, shift)['value'],
         id
-        ))
+    ))
     conn.commit()
 
-    return redirect(url_for('checkeventee', eventId = eventCode))
+    return redirect(url_for('checkeventee', eventId=eventCode))
+
 
 @app.route('/checkbackin/<eventCode>/<shift>/<id>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def checkbackin(eventCode, shift, id):
     db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (
         currentCredits - lookup(eventCode, shift)['value'],
         id
-        ))
+    ))
     db.execute('UPDATE signup SET checkin = "yes" WHERE id = ?', (id,))
 
     conn.commit()
 
-    return redirect(url_for('checkeventee', eventId = eventCode))
+    return redirect(url_for('checkeventee', eventId=eventCode))
+
 
 @app.route('/uncheckinfromcheckout/<eventCode>/<shift>/<id>')
 @login_required
+@checkPositionPermission("Executive", "index")
 def uncheckinfromcheckout(eventCode, shift, id):
     db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (
         currentCredits - lookup(eventCode, shift)['value'],
         id
-        ))
+    ))
     db.execute('UPDATE signup SET checkin = "no" WHERE id = ?', (id,))
 
     conn.commit()
 
-    return redirect(url_for('checkeventee', eventId = eventCode))
+    return redirect(url_for('checkeventee', eventId=eventCode))
+
 
 def errorhandler(e):
     '''Handle error'''
     return apology(e.name, e.code)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
