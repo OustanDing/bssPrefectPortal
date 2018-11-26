@@ -31,7 +31,7 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 
 # Connecting to prefects.db
-conn = sqlite3.connect('/home/bssprefectportal/app/prefects.db', check_same_thread=False)
+conn = sqlite3.connect('C:/Users/David Tuck/OneDrive - gapps.yrdsb.ca/Documents/School/Prefect/prefects.db', check_same_thread=False)
 db = conn.cursor()
 
 
