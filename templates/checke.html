@@ -17,7 +17,14 @@
     <br>
     <div style="visibility: {{ visibility }};">
         <!-- Not checked in Table -->
-        <h3>Not Checked In ({{ notIn|length }})</h3>
+        <div class="row">
+            <div class="col-sm-8">
+                <h3>Not Checked In ({{ notIn|length }})</h3>
+            </div>
+            <div class="col-sm-4 text-right">
+                <a href="/checkallin/{{ currentEvent.id }}" class="btn btn-success">Check all in</a>
+            </div>
+        </div>
         <table class="table table-striped text-left">
             <thead>
                 <tr>
@@ -48,7 +55,15 @@
         </table>
 
         <!-- Checked in Table -->
-        <h3>Checked In ({{ In|length }})</h3>
+        <div class="row">
+            <div class="col-sm-4">
+                <h3>Checked In ({{ In|length }})</h3>
+            </div>
+            <div class="col-sm-8 text-right">
+                <a href="/uncheckallin/{{ currentEvent.id }}" class="btn btn-danger">Undo Check all in</a>
+                <a href="/checkallout/{{ currentEvent.id }}" class="btn btn-success">Check all out</a>
+            </div>
+        </div>
         <table class="table table-striped text-left">
             <thead>
                 <tr>
@@ -78,7 +93,14 @@
         </table>
 
         <!-- Checked Out Table -->
-        <h3>Checked Out ({{ Out|length }})</h3>
+        <div class="row">
+            <div class="col-sm-4">
+                <h3>Checked Out ({{ Out|length }})</h3>
+            </div>
+            <div class="col-sm-8 text-right">
+                <a href="/checkbackinall/{{ currentEvent.id }}" class="btn btn-danger">Check all back in</a>
+            </div>
+        </div>
         <table class="table table-striped text-left">
             <thead>
                 <tr>

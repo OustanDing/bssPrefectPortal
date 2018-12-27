@@ -1639,12 +1639,32 @@ def checkin(eventId, prefectId):
 
     return redirect(url_for('checkeventee', eventId=eventId))
 
+# CHECK IN EVERYONE
+@app.route('/checkallin/<eventId>')
+@login_required
+@checkPositionPermission("Executive", "index")
+def checkallin(eventId):
+    db.execute('UPDATE signup SET checkin = "yes" WHERE eventCode = ?', (eventId,))
+    conn.commit()
+
+    return redirect(url_for('checkeventee', eventId=eventId))
+
 # UNDO CHECKING IN A PREFECT (TURN CHECKIN VALUE FROM YES TO NO)
 @app.route('/uncheckin/<eventId>/<prefectId>')
 @login_required
 @checkPositionPermission("Executive", "index")
 def uncheckin(eventId, prefectId):
     db.execute('UPDATE signup SET checkin = "no" WHERE eventCode = ? AND id = ?', (eventId, prefectId))
+    conn.commit()
+
+    return redirect(url_for('checkeventee', eventId=eventId))
+
+# UNCHECK IN EVERYONE
+@app.route('/uncheckallin/<eventId>')
+@login_required
+@checkPositionPermission("Executive", "index")
+def uncheckallin(eventId):
+    db.execute('UPDATE signup SET checkin = "no" WHERE eventCode = ?', (eventId,))
     conn.commit()
 
     return redirect(url_for('checkeventee', eventId=eventId))
@@ -1670,6 +1690,33 @@ def checkout(eventCode, shift, id):
 
     return redirect(url_for('checkeventee', eventId=eventCode))
 
+# CHECK OUT EVERYONE
+@app.route('/checkallout/<eventCode>')
+@login_required
+@checkPositionPermission("Executive", "index")
+def checkallout(eventCode):
+    tocheckout = []
+
+    db.execute('SELECT * FROM signup')
+    selected = db.fetchall()
+    
+    for selection in selected:
+        if int(selection[1]) == int(eventCode):
+            tocheckout.append(selection)
+    
+    db.execute('DELETE FROM signup WHERE eventCode = ?', (eventCode,))
+    for prefect in tocheckout: 
+        db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+                   (lookup(eventCode, prefect[2])['name'], eventCode, prefect[2], lookup(eventCode, prefect[2])['value'], prefect[4], prefect[6]))
+        db.execute('SELECT credits FROM users WHERE id = ?', (prefect[4],))
+        currentCredits = db.fetchone()[0]
+        db.execute('UPDATE users SET credits = ? WHERE id = ?', (
+            currentCredits + lookup(eventCode, prefect[2])['value'],
+            prefect[4]))
+    conn.commit()
+    
+    return redirect(url_for('checkeventee', eventId=eventCode))
+
 # CHECK A PREFECT BACK IN (FROM BEING CHECKED OUT AKA UNDO CHECKOUT)
 @app.route('/checkbackin/<eventCode>/<shift>/<id>')
 @login_required
@@ -1691,6 +1738,28 @@ def checkbackin(eventCode, shift, id):
 
     conn.commit()
 
+    return redirect(url_for('checkeventee', eventId=eventCode))
+
+# CHECK EVERYONE BACK IN
+@app.route('/checkbackinall/<eventCode>')
+@login_required
+@checkPositionPermission("Executive", "index")
+def checkbackinall(eventCode):
+
+    db.execute('SELECT * FROM completed WHERE eventCode = ?', (eventCode,))
+    selected = db.fetchall()
+
+    db.execute('DELETE FROM completed WHERE eventCode = ?', (eventCode,))
+    for prefect in selected: 
+        db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id, checkin, signuptime) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                   (lookup(eventCode, prefect[2])['name'], eventCode, prefect[2], lookup(eventCode, prefect[2])['value'], prefect[4], "yes", prefect[5]))
+        db.execute('SELECT credits FROM users WHERE id = ?', (prefect[4],))
+        currentCredits = db.fetchone()[0]
+        db.execute('UPDATE users SET credits = ? WHERE id = ?', (
+            currentCredits - lookup(eventCode, prefect[2])['value'],
+            prefect[4]))
+    conn.commit()
+    
     return redirect(url_for('checkeventee', eventId=eventCode))
 
 # MARK A PREFECT NOT CHECKED IN FROM CHECKED OUT (MOVE FROM BEING CHECKED OUT TO NOT EVEN BEING CHECKED IN)
