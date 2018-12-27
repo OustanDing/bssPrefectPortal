@@ -6,9 +6,15 @@
 
 {% block main %}
     <h4>Pending Signups ({{ totalreq }})</h4>
+    <select class="form-control" onchange="window.location.href=this.value">
+        <option value="/requestede" {% if 'byTime' == currentaddress2 %}selected{% endif %}>Sort by SIGNUP TIME</option>
+        <option value="/requestede/byEvents" {% if 'byEvent' == currentaddress2 %}selected{% endif %}>Sort by EVENT COUNT</option>
+    </select>
+    <br>
     <table class="table table-striped text-left">
         <thead>
             <tr>
+                <th>Timestamp</th>
                 <th>Event</th>
                 <th>Name</th>
                 <th>Group</th>
@@ -22,6 +28,7 @@
         <tbody>
             {% for eventRequest in requested %}
                 <tr>
+                    <td>{{ eventRequest.time }}</td>
                     <td>{{ eventRequest.eventName }}</td>
                     <td>{{ eventRequest.prefect }}</td>
                     <td>{{ eventRequest.group }}</td>
@@ -32,8 +39,8 @@
                         {{ eventRequest.shift }}
                     {% endif %}</td>
                     <td>{{ eventRequest.value }}</td>
-                    <td><a href="/approve/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}/requestede">Approve</a></td>
-                    <td><a href="/decline/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}/requestede">Decline</a></td>
+                    <td><a href="/approve/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}">Approve</a></td>
+                    <td><a href="/decline/{{ eventRequest.eventCode }}/{{ eventRequest.shift }}/{{ eventRequest.id }}">Decline</a></td>
                 </tr>
             {% endfor %}
         </tbody>

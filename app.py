@@ -221,7 +221,7 @@ def adde():
 def approvee():
     return render_template('approvee.html', currentaddress=None)
 
-# SHOW SIGNUP TABLE
+# SHOW SIGNUP TABLE, SORT BY TIME
 @app.route('/requestede')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -248,13 +248,50 @@ def requestede():
                 'credits': prefectCredits,
                 'shift': request[2],
                 'value': request[3],
-                'id': request[4]
+                'id': request[4],
+                'time': request[5]
+            })
+            totalreq += 1
+
+    requested = sorted(requested, key=itemgetter('time'))
+
+    return render_template('requestede.html', currentaddress='requestede', currentaddress2='byTime', totalreq=totalreq, requested=requested)
+
+# SHOW SIGNUP TABLE, SORT BY EVENT COUNT
+@app.route('/requestede/byEvents')
+@login_required
+@checkPositionPermission("Executive", "index")
+def requestedeByEvents():
+    requested = []
+    totalreq = 0
+
+    db.execute('SELECT * FROM requested')
+    pendingRequests = db.fetchall()
+
+    for request in pendingRequests:
+        if lookup(request[1], request[2])['visible'] == 'yes' and lookup(request[1], request[2])['done'] == 'no':
+            db.execute('SELECT name FROM users WHERE id = ?', (request[4],))
+            prefectName = db.fetchall()[0][0]
+            db.execute('SELECT leader FROM users WHERE id = ?', (request[4],))
+            prefectGroup = db.fetchall()[0][0]
+            db.execute('SELECT credits FROM users WHERE id = ?', (request[4],))
+            prefectCredits = db.fetchall()[0][0]
+            requested.append({
+                'eventName': request[0],
+                'eventCode': request[1],
+                'prefect': prefectName,
+                'group': prefectGroup,
+                'credits': prefectCredits,
+                'shift': request[2],
+                'value': request[3],
+                'id': request[4],
+                'time': request[5]
             })
             totalreq += 1
 
     requested = sorted(requested, key=itemgetter('credits'))
 
-    return render_template('requestede.html', currentaddress='requestede', totalreq=totalreq, requested=requested)
+    return render_template('requestede.html', currentaddress='requestede', currentaddress2='byEvent', totalreq=totalreq, requested=requested)
 
 # SHOW APPROVED SIGNUPS TABLE
 @app.route('/approvede')
@@ -283,7 +320,8 @@ def approvede():
                 'credits': prefectCredits,
                 'shift': request[2],
                 'value': request[3],
-                'id': request[4]
+                'id': request[4],
+                'time': request[6]
             })
             totalapp += 1
 
@@ -318,7 +356,8 @@ def confirmede():
                 'credits': prefectCredits,
                 'shift': request[2],
                 'value': request[3],
-                'id': request[4]
+                'id': request[4],
+                'time': request[5]
             })
             totalcon += 1
 
@@ -353,7 +392,8 @@ def declinede():
                 'credits': prefectCredits,
                 'shift': request[2],
                 'value': request[3],
-                'id': request[4]
+                'id': request[4],
+                'time': request[5]
             })
             totaldec += 1
 
@@ -365,9 +405,12 @@ def declinede():
 @app.route('/approve/<eventCode>/<shift>/<id>')
 @login_required
 def approve(eventCode, shift, id):
+    db.execute('SELECT * FROM requested WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    timestamp = db.fetchall()[0][5]
+    
     db.execute('DELETE FROM requested WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
-               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
     conn.commit()
 
     return redirect(url_for('requestede'))
@@ -376,9 +419,12 @@ def approve(eventCode, shift, id):
 @app.route('/approvefromdeclined/<eventCode>/<shift>/<id>')
 @login_required
 def approvefromdeclined(eventCode, shift, id):
+    db.execute('SELECT * FROM declined WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    timestamp = db.fetchall()[0][5]
+
     db.execute('DELETE FROM declined WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
-               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
     conn.commit()
 
     return redirect(url_for('declinede'))
@@ -387,9 +433,12 @@ def approvefromdeclined(eventCode, shift, id):
 @app.route('/unapprove/<eventCode>/<shift>/<id>')
 @login_required
 def unapprove(eventCode, shift, id):
+    db.execute('SELECT * FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    timestamp = db.fetchall()[0][6]
+
     db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
-               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
     conn.commit()
 
     return redirect(url_for('approvede'))
@@ -398,9 +447,12 @@ def unapprove(eventCode, shift, id):
 @app.route('/decline/<eventCode>/<shift>/<id>')
 @login_required
 def decline(eventCode, shift, id):
+    db.execute('SELECT * FROM requested WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    timestamp = db.fetchall()[0][5]
+
     db.execute('DELETE FROM requested WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO declined (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
-               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO declined (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
     conn.commit()
 
     return redirect(url_for('requestede'))
@@ -409,9 +461,12 @@ def decline(eventCode, shift, id):
 @app.route('/declinefromapproved/<eventCode>/<shift>/<id>')
 @login_required
 def declinefromapproved(eventCode, shift, id):
+    db.execute('SELECT * FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    timestamp = db.fetchall()[0][6]
+
     db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO declined (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
-               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO declined (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
     conn.commit()
 
     return redirect(url_for('approvede'))
@@ -420,9 +475,12 @@ def declinefromapproved(eventCode, shift, id):
 @app.route('/undecline/<eventCode>/<shift>/<id>')
 @login_required
 def undecline(eventCode, shift, id):
+    db.execute('SELECT * FROM declined WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    timestamp = db.fetchall()[0][5]
+
     db.execute('DELETE FROM declined WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
-               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
     conn.commit()
 
     return redirect(url_for('declinede'))
@@ -431,9 +489,12 @@ def undecline(eventCode, shift, id):
 @app.route('/confirm/<eventCode>/<shift>/<id>')
 @login_required
 def confirm(eventCode, shift, id):
+    db.execute('SELECT * FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    timestamp = db.fetchall()[0][6]
+
     db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
-               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (
@@ -448,9 +509,12 @@ def confirm(eventCode, shift, id):
 @app.route('/unconfirm/<eventCode>/<shift>/<id>')
 @login_required
 def unconfirm(eventCode, shift, id):
+    db.execute('SELECT * FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    timestamp = db.fetchall()[0][5]
+
     db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
-               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (
@@ -902,8 +966,8 @@ def withdraw(eventCode):
 @checkPositionPermission("Prefect", "eventse")
 def signup(eventCode, shift):
     # Add to user's registered events
-    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (
-        lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], session['user_id']))
+    db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)', (
+        lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], session['user_id'], datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     conn.commit()
 
     return redirect(url_for('events'))
@@ -1575,7 +1639,7 @@ def checkin(eventId, prefectId):
 
     return redirect(url_for('checkeventee', eventId=eventId))
 
-# UNDO CHECKING IN A PREFECT
+# UNDO CHECKING IN A PREFECT (TURN CHECKIN VALUE FROM YES TO NO)
 @app.route('/uncheckin/<eventId>/<prefectId>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1590,9 +1654,12 @@ def uncheckin(eventId, prefectId):
 @login_required
 @checkPositionPermission("Executive", "index")
 def checkout(eventCode, shift, id):
+    db.execute('SELECT * FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    timestamp = db.fetchall()[0][6]
+
     db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
-               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (
@@ -1608,9 +1675,12 @@ def checkout(eventCode, shift, id):
 @login_required
 @checkPositionPermission("Executive", "index")
 def checkbackin(eventCode, shift, id):
+    db.execute('SELECT * FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    timestamp = db.fetchall()[0][5]
+
     db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
-               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (
@@ -1628,16 +1698,19 @@ def checkbackin(eventCode, shift, id):
 @login_required
 @checkPositionPermission("Executive", "index")
 def uncheckinfromcheckout(eventCode, shift, id):
+    db.execute('SELECT * FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
+    timestamp = db.fetchall()[0][5]
+
     db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
-    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)',
-               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id))
+    db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
+               (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
     db.execute('SELECT credits FROM users WHERE id = ?', (id,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (
         currentCredits - lookup(eventCode, shift)['value'],
         id
     ))
-    db.execute('UPDATE signup SET checkin = "no" WHERE id = ?', (id,))
+    db.execute('UPDATE signup SET checkin = "no" WHERE id = ? AND eventCode = ? AND shift = ?', (id, eventCode, shift))
 
     conn.commit()
 
