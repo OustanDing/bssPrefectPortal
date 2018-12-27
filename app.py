@@ -289,7 +289,7 @@ def requestedeByEvents():
             })
             totalreq += 1
 
-    requested = sorted(requested, key=itemgetter('credits'))
+    requested = sorted(requested, key=itemgetter('credits', 'time'))
 
     return render_template('requestede.html', currentaddress='requestede', currentaddress2='byEvent', totalreq=totalreq, requested=requested)
 
