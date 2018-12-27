@@ -1,4 +1,4 @@
-import os, sqlite3, re
+import os, sqlite3, re, datetime
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for, send_from_directory
 from functions import *
@@ -6,6 +6,7 @@ from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from tempfile import mkdtemp
 from operator import itemgetter
+from datetime import datetime
 
 # Configure application
 app = Flask(__name__)
@@ -34,7 +35,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 conn = sqlite3.connect('/home/bssprefectportal/app/prefects.db', check_same_thread=False)
 db = conn.cursor()
 
-
+# HOMEPAGE (PREFECT)
 @app.route('/')
 @login_required
 @checkPositionPermission("Prefect", "indexe")
@@ -61,7 +62,7 @@ def index():
 
     return render_template('index.html', prefect=prefect)
 
-
+# HOMEPAGE (EXEC)
 @app.route('/indexe')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -153,7 +154,7 @@ def indexe():
 
     return render_template('indexe.html', prefect=prefect, prefects=prefects, total=total)
 
-
+# ADD PREFECT (EXEC)
 @app.route('/adde', methods=['GET', 'POST'])
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -213,14 +214,14 @@ def adde():
         flash('Registered!')
         return redirect(url_for('adde'))
 
-
+# HOMEPAGE FOR SELECTING WHICH TABLE TO VIEW
 @app.route('/approvee')
 @login_required
 @checkPositionPermission("Executive", "index")
 def approvee():
     return render_template('approvee.html', currentaddress=None)
 
-
+# SHOW SIGNUP TABLE
 @app.route('/requestede')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -255,7 +256,7 @@ def requestede():
 
     return render_template('requestede.html', currentaddress='requestede', totalreq=totalreq, requested=requested)
 
-
+# SHOW APPROVED SIGNUPS TABLE
 @app.route('/approvede')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -290,7 +291,7 @@ def approvede():
 
     return render_template('approvede.html', currentaddress='approvede', totalapp=totalapp, approved=approved)
 
-
+# SHOW TABLE OF PREFECTS WHO HAVE COMPLETED SHIFT
 @app.route('/confirmede')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -325,7 +326,7 @@ def confirmede():
 
     return render_template('confirmede.html', currentaddress='confirmede', totalcon=totalcon, confirmed=confirmed)
 
-
+# SHOW TABLE OF PREFECTS WHO HAVE NOT BEEN SELECTED
 @app.route('/declinede')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -360,7 +361,7 @@ def declinede():
 
     return render_template('declinede.html', currentaddress='declinede', totaldec=totaldec, declined=declined)
 
-
+# APPROVE A SIGNUP (MOVE FROM REQUESTED TO SIGNUP)
 @app.route('/approve/<eventCode>/<shift>/<id>')
 @login_required
 def approve(eventCode, shift, id):
@@ -371,7 +372,7 @@ def approve(eventCode, shift, id):
 
     return redirect(url_for('requestede'))
 
-
+# APPROVE A SIGNUP (MOVE FROM DECLINED TO SIGNUP)
 @app.route('/approvefromdeclined/<eventCode>/<shift>/<id>')
 @login_required
 def approvefromdeclined(eventCode, shift, id):
@@ -382,7 +383,7 @@ def approvefromdeclined(eventCode, shift, id):
 
     return redirect(url_for('declinede'))
 
-
+# UNAPPROVE A SIGNUP (MOVE FROM SIGNUP TO DECLINED)
 @app.route('/unapprove/<eventCode>/<shift>/<id>')
 @login_required
 def unapprove(eventCode, shift, id):
@@ -393,7 +394,7 @@ def unapprove(eventCode, shift, id):
 
     return redirect(url_for('approvede'))
 
-
+# DECLINE A SIGNUP (MOVE FROM REQUESTED TO DECLINED)
 @app.route('/decline/<eventCode>/<shift>/<id>')
 @login_required
 def decline(eventCode, shift, id):
@@ -404,7 +405,7 @@ def decline(eventCode, shift, id):
 
     return redirect(url_for('requestede'))
 
-
+# DECLINE A SIGNUP (MOVE FROM SIGNUP TO DECLINED)
 @app.route('/declinefromapproved/<eventCode>/<shift>/<id>')
 @login_required
 def declinefromapproved(eventCode, shift, id):
@@ -415,7 +416,7 @@ def declinefromapproved(eventCode, shift, id):
 
     return redirect(url_for('approvede'))
 
-
+# UNDECLINE A SIGNUP (MOVE FROM DECLINED TO REQUESTED)
 @app.route('/undecline/<eventCode>/<shift>/<id>')
 @login_required
 def undecline(eventCode, shift, id):
@@ -426,7 +427,7 @@ def undecline(eventCode, shift, id):
 
     return redirect(url_for('declinede'))
 
-
+# CONFIRM A SIGNUP/CHECK OUT PREFECT (MOVE FROM SIGNUP TO COMPLETED)
 @app.route('/confirm/<eventCode>/<shift>/<id>')
 @login_required
 def confirm(eventCode, shift, id):
@@ -443,7 +444,7 @@ def confirm(eventCode, shift, id):
 
     return redirect(url_for('approvede'))
 
-
+# UNCONFIRM A SIGNUP (MOVE FROM COMPLETED TO SIGNUP)
 @app.route('/unconfirm/<eventCode>/<shift>/<id>')
 @login_required
 def unconfirm(eventCode, shift, id):
@@ -460,7 +461,7 @@ def unconfirm(eventCode, shift, id):
 
     return redirect(url_for('confirmede'))
 
-
+# CHANGE PASSWORD (PREFECT ACCESS)
 @app.route('/change', methods=['GET', 'POST'])
 @login_required
 @checkPositionPermission("Prefect", "changee")
@@ -511,7 +512,7 @@ def change():
     else:
         return render_template("change.html")
 
-
+# CHANGE PASSWORD (EXEC ACCESS)
 @app.route('/changee', methods=['GET', 'POST'])
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -562,7 +563,7 @@ def changee():
     else:
         return render_template("changee.html")
 
-
+# EDIT PROFILE (PREFECT)
 @app.route('/edit', methods=['GET', 'POST'])
 @login_required
 @checkPositionPermission("Prefect", "edite")
@@ -634,7 +635,7 @@ def edit():
         flash('Updated!')
         return redirect(url_for('profile'))
 
-
+# EDIT PROFILE (EXEC)
 @app.route('/edite', methods=['GET', 'POST'])
 @login_required
 @checkPositionPermission("Executive", "edit")
@@ -709,7 +710,7 @@ def edite():
         flash('Updated!')
         return redirect(url_for('profilee'))
 
-
+# EDIT PREFECT INFO MAIN PAGE (EXEC)
 @app.route('/editprefecte')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -746,7 +747,7 @@ def editprefecte():
     return render_template('editprefecte.html', prefects=prefects, leaders=leaders, prefect=prefect,
                            visibility='hidden')
 
-
+# NAVIGATE TO CERTAIN PREFECT TO EDIT INFO (EXEC)
 @app.route('/editprefecte/<prefectId>', methods=['GET', 'POST'])
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -800,7 +801,7 @@ def editPrefectInfo(prefectId):
         flash('Updated!')
         return redirect('/editprefecte/' + prefectId)
 
-
+# DELETE A PREFECT (EXEC)
 @app.route('/deleteprefecte/<prefectId>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -814,7 +815,7 @@ def deletePrefect(prefectId):
 
     return redirect(url_for('indexe'))
 
-
+# RESET PREFECT PASSWORD (EXEC)
 @app.route('/resetPass/<prefectId>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -827,7 +828,7 @@ def resetPass(prefectId):
 
     return redirect(url_for('editPrefectInfo', prefectId=prefectId))
 
-
+# VIEW EVENTS (PREFECT)
 @app.route('/events')
 @login_required
 @checkPositionPermission("Prefect", "eventse")
@@ -885,7 +886,7 @@ def events():
     return render_template('events.html', registered=registered, requested=requested, available=available,
                            completed=completed, total=total)
 
-
+# WITHDRAW EVENT SIGNUP (PREFECT)
 @app.route('/withdraw/<eventCode>')
 @login_required
 def withdraw(eventCode):
@@ -895,10 +896,10 @@ def withdraw(eventCode):
 
     return redirect(url_for('events'))
 
-
+# SIGNUP FOR AN EVENT (PREFECT)
 @app.route('/signup/<eventCode>/<shift>')
 @login_required
-@checkPositionPermission("Executive", "events")
+@checkPositionPermission("Prefect", "eventse")
 def signup(eventCode, shift):
     # Add to user's registered events
     db.execute('INSERT INTO requested (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (
@@ -907,7 +908,7 @@ def signup(eventCode, shift):
 
     return redirect(url_for('events'))
 
-
+# EVENTS MAIN PAGE (EXEC)
 @app.route('/eventse', methods=['GET', 'POST'])
 @login_required
 @checkPositionPermission("Executive", "events")
@@ -1020,7 +1021,7 @@ def eventse():
         flash('Event added!')
         return redirect(url_for('eventse'))
 
-
+# HIDE AN EVENT
 @app.route('/eventhide/<eventCode>/<shift>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1030,7 +1031,7 @@ def eventhide(eventCode, shift):
 
     return redirect(url_for('eventse'))
 
-
+# SHOW AN EVENT
 @app.route('/eventshow/<eventCode>/<shift>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1040,7 +1041,7 @@ def eventshow(eventCode, shift):
 
     return redirect(url_for('eventse'))
 
-
+# DELETE/REMOVE AN EVENT
 @app.route('/eventremove/<eventCode>/<shift>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1073,7 +1074,7 @@ def eventremove(eventCode, shift):
 
     return redirect(url_for('eventse'))
 
-
+# MARK EVENT AS DONE
 @app.route('/eventdone/<eventCode>/<shift>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1100,7 +1101,7 @@ def eventdone(eventCode, shift):
 
     return redirect(url_for('eventse'))
 
-
+# UNDO MARKING AN EVENT AS DONE
 @app.route('/eventundone/<eventCode>/<shift>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1127,7 +1128,7 @@ def eventundone(eventCode, shift):
 
     return redirect(url_for('eventse'))
 
-
+# VIEW FILES (PREFECT)
 @app.route('/files')
 @login_required
 @checkPositionPermission("Prefect", "filese")
@@ -1142,7 +1143,7 @@ def files():
 
     return render_template('files.html', files=fileDict)
 
-
+# VIEW/CHANGE FILES (EXEC)
 @app.route('/filese', methods=['GET', 'POST'])
 @login_required
 @checkPositionPermission("Executive", "files")
@@ -1194,7 +1195,7 @@ def filese():
 
         return redirect(url_for('filese'))
 
-
+# HIDE A FILE
 @app.route('/hide/<fileId>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1204,7 +1205,7 @@ def hide(fileId):
 
     return redirect(url_for('filese'))
 
-
+# SHOW A FILE
 @app.route('/show/<fileId>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1214,7 +1215,7 @@ def show(fileId):
 
     return redirect(url_for('filese'))
 
-
+# REMOVE A FILE
 @app.route('/remove/<fileId>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1224,7 +1225,7 @@ def remove(fileId):
 
     return redirect(url_for('filese'))
 
-
+# LOGIN PAGE
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     '''Log user in'''
@@ -1268,7 +1269,7 @@ def login():
     else:
         return render_template('login.html')
 
-
+# LOGOUT PAGE
 @app.route('/logout')
 @login_required
 def logout():
@@ -1279,7 +1280,7 @@ def logout():
 
     return redirect('/')
 
-
+# VIEW PROFILE (PREFECT)
 @app.route('/profile')
 @login_required
 @checkPositionPermission("Prefect", "profilee")
@@ -1305,7 +1306,7 @@ def profile():
 
     return render_template('profile.html', prefect=prefect)
 
-
+# VIEW PROFILE (EXEC)
 @app.route('/profilee')
 @login_required
 @checkPositionPermission("Executive", "profile")
@@ -1331,7 +1332,7 @@ def profilee():
 
     return render_template('profilee.html', prefect=prefect)
 
-
+# THIS SHOULD NOT EXIST
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     '''Register user'''
@@ -1448,7 +1449,7 @@ def viewe():
     return render_template('viewe.html', confirmed = confirmed)
 '''
 
-
+# CHECKIN/OUT MAIN PAGE
 @app.route('/checke')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1473,7 +1474,7 @@ def checke():
 
     return render_template('checke.html', events=events, currentEvent=currentEvent, visibility='hidden')
 
-
+# OPEN PREFECTS FOR SELECTED EVENT
 @app.route('/checke/<eventId>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1564,7 +1565,7 @@ def checkeventee(eventId):
     return render_template('checke.html', events=events, currentEvent=currentEvent, notIn=notIn, In=In, Out=Out,
                            visibility='visible')
 
-
+# CHECK IN A PREFECT
 @app.route('/checkin/<eventId>/<prefectId>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1574,7 +1575,7 @@ def checkin(eventId, prefectId):
 
     return redirect(url_for('checkeventee', eventId=eventId))
 
-
+# UNDO CHECKING IN A PREFECT
 @app.route('/uncheckin/<eventId>/<prefectId>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1584,7 +1585,7 @@ def uncheckin(eventId, prefectId):
 
     return redirect(url_for('checkeventee', eventId=eventId))
 
-
+# CHECK OUT A PREFECT
 @app.route('/checkout/<eventCode>/<shift>/<id>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1602,7 +1603,7 @@ def checkout(eventCode, shift, id):
 
     return redirect(url_for('checkeventee', eventId=eventCode))
 
-
+# CHECK A PREFECT BACK IN (FROM BEING CHECKED OUT AKA UNDO CHECKOUT)
 @app.route('/checkbackin/<eventCode>/<shift>/<id>')
 @login_required
 @checkPositionPermission("Executive", "index")
@@ -1622,7 +1623,7 @@ def checkbackin(eventCode, shift, id):
 
     return redirect(url_for('checkeventee', eventId=eventCode))
 
-
+# MARK A PREFECT NOT CHECKED IN FROM CHECKED OUT (MOVE FROM BEING CHECKED OUT TO NOT EVEN BEING CHECKED IN)
 @app.route('/uncheckinfromcheckout/<eventCode>/<shift>/<id>')
 @login_required
 @checkPositionPermission("Executive", "index")
