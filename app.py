@@ -32,7 +32,7 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 
 # Connecting to prefects.db
-conn = sqlite3.connect('/home/bssprefectportal/app/prefects.db', check_same_thread=False)
+conn = sqlite3.connect('prefects.db', check_same_thread=False)
 db = conn.cursor()
 
 # HOMEPAGE (PREFECT)
@@ -62,12 +62,13 @@ def index():
 
     return render_template('index.html', prefect=prefect)
 
+'''
 # HOMEPAGE (EXEC)
 @app.route('/indexe')
 @login_required
 @checkPositionPermission("Executive", "index")
 def indexe():
-    ''' Display user dashboard '''
+    Display user dashboard
 
     db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],))
     creds = db.fetchall()
@@ -153,6 +154,361 @@ def indexe():
             total['returning'] += 1
 
     return render_template('indexe.html', prefect=prefect, prefects=prefects, total=total)
+'''
+
+# HOMEPAGE (EXEC)
+@app.route('/indexe')
+@login_required
+@checkPositionPermission("Executive", "index")
+def indexe():
+    # Display user's dashboard
+    # Get leaders
+    db.execute('SELECT leader FROM users WHERE position = "Executive" AND id != ?', (session['user_id'],))
+    leaderData = db.fetchall()
+
+    leaders = [leader[0] for leader in leaderData]
+
+    # Get current executive's data
+    db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],))
+    creds = db.fetchall()
+
+    userGroup = creds[0][8]
+
+    db.execute('SELECT * FROM users WHERE leader = ? AND id != ?', (userGroup, session['user_id']))
+    members = db.fetchall()
+
+    prefect = dict([
+        ('name', creds[0][2]),
+        ('position', creds[0][14]),
+        ('firstname', creds[0][8])
+    ])
+
+    # Get current group
+    db.execute('SELECT leader FROM users WHERE id = ?', (session['user_id'],))
+    currentGroup = db.fetchall()[0][0]
+
+    # Get data for current executive's prefect group
+    prefects = []
+
+    for member in members:
+        info = dict([
+            ('id', member[0]),
+            ('name', member[2]),
+            ('credits', member[4]),
+            ('gender', member[6]),
+            ('grade', member[5]),
+            ('size', member[9]),
+            ('email', member[13]),
+            ('home', member[11]),
+            ('cell', member[12]),
+            ('dietary', member[7]),
+            ('status', member[10])
+        ])
+
+        db.execute("SELECT * FROM completed WHERE id = ?", (member[0],))
+        completed = db.fetchall()
+
+        db.execute("SELECT * FROM signup WHERE id = ?", (member[0],))
+        upcoming = db.fetchall()
+
+        info['completed'] = [(event[0], event[2], event[3]) for event in completed]
+        info['upcoming'] = [(event[0], event[2], event[3]) for event in upcoming]
+
+        prefects.append(info)
+
+    prefects = sorted(prefects, key=itemgetter('name'))
+
+    total = {
+        'male': 0,
+        'female': 0,
+        'eleven': 0,
+        'twelve': 0,
+        'malexs': 0,
+        'males': 0,
+        'malem': 0,
+        'malel': 0,
+        'malexl': 0,
+        'femalexs': 0,
+        'females': 0,
+        'femalem': 0,
+        'femalel': 0,
+        'femalexl': 0,
+        'new': 0,
+        'returning': 0
+    }
+
+    for member in members:
+        if member[6] == 'Male':
+            total['male'] += 1
+        elif member[6] == 'Female':
+            total['female'] += 1
+
+        if member[9] == 'XS' and member[6] == 'male':
+            total['malexs'] += 1
+        elif member[9] == 'S' and member[6] == 'male':
+            total['males'] += 1
+        elif member[9] == 'M' and member[6] == 'male':
+            total['malem'] += 1
+        elif member[9] == 'L' and member[6] == 'male':
+            total['malel'] += 1
+        elif member[9] == 'XL' and member[6] == 'male':
+            total['malexl'] += 1
+        elif member[9] == 'XS' and member[6] == 'female':
+            total['femalexs'] += 1
+        elif member[9] == 'S' and member[6] == 'female':
+            total['females'] += 1
+        elif member[9] == 'M' and member[6] == 'female':
+            total['femalem'] += 1
+        elif member[9] == 'L' and member[6] == 'female':
+            total['femalel'] += 1
+        elif member[9] == 'XL' and member[6] == 'female':
+            total['femalexl'] += 1
+
+        if member[5] == '11':
+            total['eleven'] += 1
+        elif member[5] == '12':
+            total['twelve'] += 1
+
+        if member[10] == 'New':
+            total['new'] += 1
+        elif member[10] == 'Returning':
+            total['returning'] += 1
+
+    return render_template('indexe.html', prefect=prefect, prefects=prefects, total=total, leaders=leaders, currentGroup=currentGroup)
+
+# HOMEPAGE FOR ALL PREFECTS (EXEC)
+@app.route('/indexe/all')
+@login_required
+@checkPositionPermission("Executive", "index")
+def indexe2():
+    # Display user's dashboard
+    # Get leaders
+    db.execute('SELECT leader FROM users WHERE position = "Executive" AND id != ?', (session['user_id'],))
+    leaderData = db.fetchall()
+
+    leaders = [leader[0] for leader in leaderData]
+
+    # Get current executive's data
+    db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],))
+    creds = db.fetchall()
+
+    prefect = dict([
+        ('name', creds[0][2]),
+        ('position', creds[0][14]),
+        ('firstname', creds[0][8])
+    ])
+
+    # Get current group ('all')
+    currentGroup = 'all'
+
+    # Get data for all prefects
+    db.execute('SELECT * FROM users WHERE id != ? AND position = "Prefect"', (session['user_id'],))
+    members = db.fetchall()
+
+    prefects = []
+
+    for member in members:
+        info = dict([
+            ('id', member[0]),
+            ('name', member[2]),
+            ('credits', member[4]),
+            ('gender', member[6]),
+            ('grade', member[5]),
+            ('size', member[9]),
+            ('email', member[13]),
+            ('home', member[11]),
+            ('cell', member[12]),
+            ('dietary', member[7]),
+            ('status', member[10])
+        ])
+
+        db.execute("SELECT * FROM completed WHERE id = ?", (member[0],))
+        completed = db.fetchall()
+
+        db.execute("SELECT * FROM signup WHERE id = ?", (member[0],))
+        upcoming = db.fetchall()
+
+        info['completed'] = [(event[0], event[2], event[3]) for event in completed]
+        info['upcoming'] = [(event[0], event[2], event[3]) for event in upcoming]
+
+        prefects.append(info)
+
+    prefects = sorted(prefects, key=itemgetter('name'))
+
+    total = {
+        'male': 0,
+        'female': 0,
+        'eleven': 0,
+        'twelve': 0,
+        'malexs': 0,
+        'males': 0,
+        'malem': 0,
+        'malel': 0,
+        'malexl': 0,
+        'femalexs': 0,
+        'females': 0,
+        'femalem': 0,
+        'femalel': 0,
+        'femalexl': 0,
+        'new': 0,
+        'returning': 0
+    }
+
+    for member in members:
+        if member[6] == 'Male':
+            total['male'] += 1
+        elif member[6] == 'Female':
+            total['female'] += 1
+
+        if member[9] == 'XS' and member[6] == 'male':
+            total['malexs'] += 1
+        elif member[9] == 'S' and member[6] == 'male':
+            total['males'] += 1
+        elif member[9] == 'M' and member[6] == 'male':
+            total['malem'] += 1
+        elif member[9] == 'L' and member[6] == 'male':
+            total['malel'] += 1
+        elif member[9] == 'XL' and member[6] == 'male':
+            total['malexl'] += 1
+        elif member[9] == 'XS' and member[6] == 'female':
+            total['femalexs'] += 1
+        elif member[9] == 'S' and member[6] == 'female':
+            total['females'] += 1
+        elif member[9] == 'M' and member[6] == 'female':
+            total['femalem'] += 1
+        elif member[9] == 'L' and member[6] == 'female':
+            total['femalel'] += 1
+        elif member[9] == 'XL' and member[6] == 'female':
+            total['femalexl'] += 1
+
+        if member[5] == '11':
+            total['eleven'] += 1
+        elif member[5] == '12':
+            total['twelve'] += 1
+
+        if member[10] == 'New':
+            total['new'] += 1
+        elif member[10] == 'Returning':
+            total['returning'] += 1
+
+    return render_template('indexe.html', prefect=prefect, prefects=prefects, total=total, leaders=leaders, currentGroup=currentGroup)
+
+# HOMEPAGE FOR DIFFERENT GROUP (EXEC)
+@app.route('/indexe/<leader>')
+@login_required
+@checkPositionPermission("Executive", "index")
+def indexe3(leader):
+    # Display user's dashboard
+    # Get leaders
+    db.execute('SELECT leader FROM users WHERE position = "Executive" AND id != ?', (session['user_id'],))
+    leaderData = db.fetchall()
+
+    leaders = [leader[0] for leader in leaderData]
+
+    # Get current executive's data
+    db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],))
+    creds = db.fetchall()
+
+    prefect = dict([
+        ('name', creds[0][2]),
+        ('position', creds[0][14]),
+        ('firstname', creds[0][8])
+    ])
+
+    # Get current group
+    currentGroup = leader
+
+    # Get data for current executive's prefect group
+    db.execute('SELECT * FROM users WHERE leader = ? AND id != ? AND position = "Prefect"', (currentGroup, session['user_id']))
+    members = db.fetchall()
+
+    prefects = []
+
+    for member in members:
+        info = dict([
+            ('id', member[0]),
+            ('name', member[2]),
+            ('credits', member[4]),
+            ('gender', member[6]),
+            ('grade', member[5]),
+            ('size', member[9]),
+            ('email', member[13]),
+            ('home', member[11]),
+            ('cell', member[12]),
+            ('dietary', member[7]),
+            ('status', member[10])
+        ])
+
+        db.execute("SELECT * FROM completed WHERE id = ?", (member[0],))
+        completed = db.fetchall()
+
+        db.execute("SELECT * FROM signup WHERE id = ?", (member[0],))
+        upcoming = db.fetchall()
+
+        info['completed'] = [(event[0], event[2], event[3]) for event in completed]
+        info['upcoming'] = [(event[0], event[2], event[3]) for event in upcoming]
+
+        prefects.append(info)
+
+    prefects = sorted(prefects, key=itemgetter('name'))
+
+    total = {
+        'male': 0,
+        'female': 0,
+        'eleven': 0,
+        'twelve': 0,
+        'malexs': 0,
+        'males': 0,
+        'malem': 0,
+        'malel': 0,
+        'malexl': 0,
+        'femalexs': 0,
+        'females': 0,
+        'femalem': 0,
+        'femalel': 0,
+        'femalexl': 0,
+        'new': 0,
+        'returning': 0
+    }
+
+    for member in members:
+        if member[6] == 'Male':
+            total['male'] += 1
+        elif member[6] == 'Female':
+            total['female'] += 1
+
+        if member[9] == 'XS' and member[6] == 'male':
+            total['malexs'] += 1
+        elif member[9] == 'S' and member[6] == 'male':
+            total['males'] += 1
+        elif member[9] == 'M' and member[6] == 'male':
+            total['malem'] += 1
+        elif member[9] == 'L' and member[6] == 'male':
+            total['malel'] += 1
+        elif member[9] == 'XL' and member[6] == 'male':
+            total['malexl'] += 1
+        elif member[9] == 'XS' and member[6] == 'female':
+            total['femalexs'] += 1
+        elif member[9] == 'S' and member[6] == 'female':
+            total['females'] += 1
+        elif member[9] == 'M' and member[6] == 'female':
+            total['femalem'] += 1
+        elif member[9] == 'L' and member[6] == 'female':
+            total['femalel'] += 1
+        elif member[9] == 'XL' and member[6] == 'female':
+            total['femalexl'] += 1
+
+        if member[5] == '11':
+            total['eleven'] += 1
+        elif member[5] == '12':
+            total['twelve'] += 1
+
+        if member[10] == 'New':
+            total['new'] += 1
+        elif member[10] == 'Returning':
+            total['returning'] += 1
+
+    return render_template('indexe.html', prefect=prefect, prefects=prefects, total=total, leaders=leaders, currentGroup=currentGroup)
 
 # ADD PREFECT (EXEC)
 @app.route('/adde', methods=['GET', 'POST'])

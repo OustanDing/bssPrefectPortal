@@ -2,6 +2,10 @@ p {
     margin: 0px;
 }
 
+.card {
+    margin-right: 10px;
+}
+
 #yourgroup {
     margin-bottom: 5px;
 }
@@ -72,4 +76,11 @@ p {
 
 .checkoption, .checkoption2 {
     width: 15%;
+}
+
+.table-wrapper-scroll-y {
+    display: block;
+    max-height: 460px;
+    overflow-y: auto;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
 }

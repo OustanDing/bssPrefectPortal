@@ -6,113 +6,175 @@
 
 {% block main %}
     <h1>{{ prefect.name }}</h1>
-    <div class="row">
-        <div class="col-md-4"><h6>{{ prefect.position }}</h6></div>
-        <div class="col-md-8 text-right">
-            <!--
-            Show:
-            <form action="/indexe" method="POST">
-                <select class="form-control" name="grade">
-                    <option value="11" {% if prefect.grade == 11 %} selected="selected" {% endif %}>11</option>
-                    <option value="12" {% if prefect.grade == 12 %} selected="selected" {% endif %}>12</option>
-                </select>
-            </form>
-            -->
-        </div>
-    </div>
+    <h6>{{ prefect.position }}</h6>
+    <select class="form-control" style="width:auto" onchange="window.location.href=this.value">
+        <option value="/indexe" selected>Your group</option>
+        <option value="/indexe/all" {% if currentGroup == 'all' %}selected{% endif %}>ALL PREFECTS</option>
+        {% for leader in leaders %}
+            <option value="/indexe/{{ leader }}" {% if currentGroup == leader %}selected{% endif %}>{{ leader }}'s group</option>
+        {% endfor %}
+    </select>
     <br>
     <div class="row" id="yourgroup">
-        <div class="col-md-8"><h4>Your group:</h4></div>
+        <div class="col-md-8"><h4>{% if prefect.firstname == currentGroup %}Your group{% elif currentGroup == 'all' %}All Prefects{% else %}{{ currentGroup }}'s group{% endif %} ({{ prefects|length }}):</h4></div>
         <div class="col-md-4 text-right"><a href="/editprefecte" class="btn btn-primary">Edit</a></div>
     </div>
-    <div class="table-responsive">
-        <table class="table table-striped text-left">
-            <thead>
-                <tr><b>
-                    <th>Name</th>
-                    <th>Events</th>
-                    <th>Gender</th>
-                    <th>Grade</th>
-                    <th>Size</th>
-                    <th>Email</th>
-                    <th>Home Phone</th>
-                    <th>Cell Phone</th>
-                    <th class="text-nowrap">Dietary Restrictions</th>
-                    <th>Status</th>
-                    <th>Completed</th>
-                    <th>Upcoming</th>
-                </b></tr>
-            </thead>
-            <tbody>
-                {% for prefect in prefects %}
-                    <tr>
-                        <td class="text-nowrap">{{ prefect.name }}</td>
-                        <td>{{ prefect.credits }}</td>
-                        <td>{{ prefect.gender or 'N/A' }}</td>
-                        <td>{{ prefect.grade }}</td>
-                        <td>{{ prefect.size or 'N/A' }}</td>
-                        <td>{{ prefect.email or 'N/A' }}</td>
-                        <td class="text-nowrap">{{ prefect.home or 'N/A' }}</td>
-                        <td class="text-nowrap">{{ prefect.cell or 'N/A' }}</td>
-                        <td class="text-nowrap">{{ prefect.dietary or 'N/A' }}</td>
-                        <td class="text-nowrap">{{ prefect.status or 'N/A' }}</td>
-                        <td class="text-nowrap">
-                            <ul>
-                                {% for event in prefect.completed %}
-                                    {% if event[1] == 3 %}
-                                        <li>{{ event[0] }} (Shifts 1 + 2, {{ event[2] }} events)</li>
-                                    {% else %}
-                                        <li>{{ event[0] }} (Shift {{ event[1] }}, {{ event[2] }} events)</li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
-                        </td>
-                        <td class="text-nowrap">
-                            <ul>
-                                {% for event in prefect.upcoming %}
-                                    {% if event[1] == 3 %}
-                                        <li>{{ event[0] }} (Shifts 1 + 2, {{ event[2] }} events)</li>
-                                    {% else %}
-                                        <li>{{ event[0] }} (Shift {{ event[1] }}, {{ event[2] }} events)</li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-            <tfoot>
-                <tr class="total">
-                    <td colspan="2">TOTAL</td>
-                    <td>
-                        M: {{ total.male }}<br>
-                        F: {{ total.female }}
-                    </td>
-                    <td>
-                        11: {{ total.eleven }}<br>
-                        12: {{ total.twelve }}
-                    </td>
-                    <td>
-                        XS: {{ total.xs }}<br>
-                        S: {{ total.s }}<br>
-                        M: {{ total.m }}<br>
-                        L: {{ total.l }}<br>
-                        XL: {{ total.xl }}
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        New: {{ total.new }}<br>
-                        Returning: {{ total.returning }}
-                    </td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
+    <div class="row">
+        <div class="card">
+            <div class="card-header">
+                Prefects
+            </div>
+            <div class="card-body">
+                {% if currentGroup == 'all' %}
+                    <div class="table-wrapper-scroll-y">
+                {% endif %}
+                <table class="table table-striped text-left" style="width:auto">
+                    <tbody>
+                        {% for prefect in prefects %}
+                            <tr><td>
+                                <a href="#" data-toggle="modal" data-target="#popup_{{ prefect.id }}">{{ prefect.name }}</a>
+                            </td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if currentGroup == 'all' %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Genders
+            </div>
+            <div class="card-body">
+                M: {{ total.male }}<br> 
+                F: {{ total.female }}
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Grades
+            </div>
+            <div class="card-body">
+                11: {{ total.eleven }}<br>  
+                12: {{ total.twelve }}
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Shirt Sizes (Male)
+            </div>
+            <div class="card-body">
+                XS: {{ total.malexs }}<br>  
+                S: {{ total.males }}<br>
+                M: {{ total.malem }}<br>
+                L: {{ total.malel }}<br>
+                XL: {{ total.malexl }}
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Shirt Sizes (Female)
+            </div>
+            <div class="card-body">
+                XS: {{ total.femalexs }}<br>  
+                S: {{ total.females }}<br>
+                M: {{ total.femalem }}<br>
+                L: {{ total.femalel }}<br>
+                XL: {{ total.femalexl }}
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Status
+            </div>
+            <div class="card-body">
+                New: {{ total.new }}<br>
+                Returning: {{ total.returning }}
+            </div>
+        </div>
     </div>
+    {% for prefect in prefects %}
+        <div class="modal fade" id="popup_{{ prefect.id }}" tabindex="-1" role="dialog" aria-labelledby="popuptitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="popuptitle">{{ prefect.name }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-right" style="margin-bottom: 5px">
+                            <a href="/editprefecte/{{ prefect.id }}" class="btn btn-primary">Edit</a>
+                        </div>
+                        <table class="table table-bordered">
+                            <tr>
+                                <td class="category">Events</td>
+                                <td>{{ prefect.credits }}</td>
+                            </tr>
+                            <tr>
+                                <td class="category">Gender</td>
+                                <td>{{ prefect.gender }}</td>
+                            </tr>
+                            <tr>
+                                <td class="category">Grade</td>
+                                <td>{{ prefect.grade }}</td>
+                            </tr>
+                            <tr>
+                                <td class="category">Size</td>
+                                <td>{{ prefect.size }}</td>
+                            </tr>
+                            <tr>
+                                <td class="category">Email</td>
+                                <td>{{ prefect.email }}</td>
+                            </tr>
+                            <tr>
+                                <td class="category">Home Phone</td>
+                                <td>{{ prefect.home }}</td>
+                            </tr>
+                            <tr>
+                                <td class="category">Cell Phone</td>
+                                <td>{{ prefect.cell }}</td>
+                            </tr>
+                            <tr>
+                                <td class="category">Dietary Restrictions</td>
+                                <td>{{ prefect.dietary }}</td>
+                            </tr>
+                            <tr>
+                                <td class="category">Status</td>
+                                <td>{{ prefect.status }}</td>
+                            </tr>
+                        </table>
+                        <b>Completed Events</b>
+                        <ul>
+                            {% for event in prefect.completed %}
+                                {% if event[1] == 3 %}
+                                    <li>{{ event[0] }} (Shifts 1 + 2, {{ event[2] }} events)</li>
+                                {% else %}
+                                    <li>{{ event[0] }} (Shift {{ event[1] }}, {{ event[2] }} events)</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                        <b>Upcoming Events</b>
+                        <ul>
+                            {% for event in prefect.upcoming %}
+                                {% if event[1] == 3 %}
+                                    <li>{{ event[0] }} (Shifts 1 + 2, {{ event[2] }} events)</li>
+                                {% else %}
+                                    <li>{{ event[0] }} (Shift {{ event[1] }}, {{ event[2] }} events)</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
     <br>
 
 
