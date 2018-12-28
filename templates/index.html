@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block main %}
-
+    
     <h1>{{ prefect.name }}</h1>
-    <h6>{{ prefect.position }}</h6>
+    <h6>{{ prefect.position }} ({{ prefect.leader }}'s Group)</h6>
     <h4>{{ prefect.credits }} event{% if prefect.credits != 1.0 %}s{% endif %}</h4>
     {% if prefect.credits >= 4 %}
         <p class="green">Eligible for certificate</p>
@@ -19,7 +19,8 @@
     {% else %}
         <p class="red">Not yet eligible to apply for executive position ({{ 5 - prefect.credits }} events needed)</p>
     {% endif %}
-
+    <hr>
+    <h3>Completed events:</h3>
     <ul>
         {% for event in prefect.events %}
             {% if event[1] == 3 %}
@@ -28,10 +29,9 @@
                 <li>{{ event[0] }} (Shift {{ event[1] }}, {{ event[2] }} events)</li>
             {% endif %}
         {% endfor %}
-    </ul>
-    <h5>{{ prefect.leader }}'s Group</h5>
-    <br>
-    <h3>Upcoming events you're prefecting at:</h3>
+    </ul>  
+    <hr>
+    <h3>Upcoming events:</h3>
     <ul>
         {% for event in prefect.registered %}
             {% if event[1] == 3 %}
