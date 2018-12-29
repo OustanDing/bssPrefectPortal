@@ -1,101 +1,47 @@
-{% extends "layoute.html" %}
+{% extends "layouta.html" %}
 
 {% block title %}
-    Dashboard
+    Prefects
 {% endblock %}
 
 {% block main %}
-    <h1>{{ prefect.name }}</h1>
-    <h6>{{ prefect.position }}</h6>
+    <h1>Prefects</h1>
     <select class="form-control" style="width:auto" onchange="window.location.href=this.value">
-        <option value="/indexe" selected>Your group</option>
-        <option value="/indexe/all" {% if currentGroup == 'all' %}selected{% endif %}>ALL PREFECTS</option>
+        <option value="/prefectsa" {% if currentGroup == 'all' %}selected{% endif %}>ALL PREFECTS</option>
         {% for leader in leaders %}
-            <option value="/indexe/{{ leader }}" {% if currentGroup == leader %}selected{% endif %}>{{ leader }}'s group</option>
+            <option value="/prefectsa/{{ leader }}" {% if currentGroup == leader %}selected{% endif %}>{{ leader }}'s group</option>
         {% endfor %}
     </select>
     <hr>
     <div class="row" id="yourgroup">
-        <div class="col-md-8"><h4>{% if prefect.firstname == currentGroup %}Your group{% elif currentGroup == 'all' %}All Prefects{% else %}{{ currentGroup }}'s group{% endif %} ({{ prefects|length }}):</h4></div>
-        {% if currentGroup == prefect.firstname %}
-            <div class="col-md-4 text-right"><a href="/editprefecte" class="btn btn-primary">Edit</a></div>
-        {% endif %}
+        <div class="col-md-8"><h4>{% if currentGroup == 'all' %}All Prefects{% else %}{{ currentGroup }}'s group{% endif %} ({{ prefects|length }}):</h4></div>
     </div>
-    <div class="row">
-        <div class="card">
-            <div class="card-header">
-                Prefects
-            </div>
-            <div class="card-body">
-                {% if currentGroup == 'all' %}
-                    <div class="table-wrapper-scroll-y">
-                {% endif %}
-                <table class="table table-striped text-left" style="width:auto">
+    {% if currentGroup == 'all' %}
+        <div class="row">
+            {% for column in prefects | slice(6) %}
+                <table class="table table-striped text-left" style="width:auto; margin-right: 13px">
                     <tbody>
-                        {% for prefect in prefects %}
+                        {% for prefect in column %}
                             <tr><td>
                                 <a href="#" data-toggle="modal" data-target="#popup_{{ prefect.id }}">{{ prefect.name }}</a>
                             </td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
-                {% if currentGroup == 'all' %}
-                    </div>
-                {% endif %}
-            </div>
+            {% endfor %}
         </div>
-        <div class="card">
-            <div class="card-header">
-                Genders
-            </div>
-            <div class="card-body">
-                M: {{ total.male }}<br> 
-                F: {{ total.female }}
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                Grades
-            </div>
-            <div class="card-body">
-                11: {{ total.eleven }}<br>  
-                12: {{ total.twelve }}
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                Shirt Sizes (Male)
-            </div>
-            <div class="card-body">
-                XS: {{ total.malexs }}<br>  
-                S: {{ total.males }}<br>
-                M: {{ total.malem }}<br>
-                L: {{ total.malel }}<br>
-                XL: {{ total.malexl }}
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                Shirt Sizes (Female)
-            </div>
-            <div class="card-body">
-                XS: {{ total.femalexs }}<br>  
-                S: {{ total.females }}<br>
-                M: {{ total.femalem }}<br>
-                L: {{ total.femalel }}<br>
-                XL: {{ total.femalexl }}
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                Status
-            </div>
-            <div class="card-body">
-                New: {{ total.new }}<br>
-                Returning: {{ total.returning }}
-            </div>
-        </div>
-    </div>
+    {% else %}
+        <table class="table table-striped text-left" style="width:auto">
+            <tbody>
+                {% for prefect in prefects %}
+                    <tr><td>
+                        <a href="#" data-toggle="modal" data-target="#popup_{{ prefect.id }}">{{ prefect.name }}</a>
+                    </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
     {% for prefect in prefects %}
         <div class="modal fade" id="popup_{{ prefect.id }}" tabindex="-1" role="dialog" aria-labelledby="popuptitle" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -108,7 +54,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="text-right" style="margin-bottom: 5px">
-                            <a href="/editprefecte/{{ prefect.id }}" class="btn btn-primary">Edit</a>
+                            <a href="/editprefecta/{{ prefect.id }}" class="btn btn-primary">Edit</a>
                         </div>
                         <table class="table table-bordered">
                             <tr>

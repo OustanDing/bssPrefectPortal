@@ -10,6 +10,21 @@ p {
     margin-bottom: 5px;
 }
 
+.textbox {
+    width: auto;
+}
+
+.centeronpage {
+    margin: 0 auto;
+    text-align: center;
+}
+
+.pullbottom {
+    display: inline-block;
+    vertical-align: bottom;
+    float: none;
+}
+
 .category, .total {
     font-weight: bold;
 }

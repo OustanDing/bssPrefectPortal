@@ -1,4 +1,4 @@
-{% extends "layoute.html" %}
+{% extends "layouta.html" %}
 
 {% block title %}
     Events
@@ -6,7 +6,7 @@
 
 {% block main %}
     <h4>Add an event</h4>
-    <form action="/eventse" method="POST">
+    <form action="/eventsa" method="POST">
         Name: <input autocomplete="off" autofocus class="form-control" type="text" name="name" placeholder="Event Name" ><br>
         Shifts:
         <br>
@@ -49,9 +49,9 @@
                         {{ event.shift }}
                     {% endif %}</td>
                     <td class="eventvalue">{{ event.value }}</td>
-                    <td class="eventhide"><a href="/eventhide/{{ event.eventCode }}/{{ event.shift }}">Hide</a></td>
-                    <td class="eventremove"><a href="/eventremove/{{ event.eventCode }}/{{ event.shift }}">Remove</a></td>
-                    <td class="eventdone"><a href="/eventdone/{{ event.eventCode }}/{{ event.shift }}">Done</a></td>
+                    <td class="eventhide"><a href="/eventhidea/{{ event.eventCode }}/{{ event.shift }}">Hide</a></td>
+                    <td class="eventremove"><a href="/eventremovea/{{ event.eventCode }}/{{ event.shift }}">Remove</a></td>
+                    <td class="eventdone"><a href="/eventdonea/{{ event.eventCode }}/{{ event.shift }}">Done</a></td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -79,8 +79,8 @@
                         {{ event.shift }}
                     {% endif %}</td>
                     <td class="eventvalue">{{ event.value }}</td>
-                    <td class="eventshow"><a href="/eventshow/{{ event.eventCode }}/{{ event.shift }}">Show</a></td>
-                    <td class="eventremove"><a href="/eventremove/{{ event.eventCode }}/{{ event.shift }}">Remove</a></td>
+                    <td class="eventshow"><a href="/eventshowa/{{ event.eventCode }}/{{ event.shift }}">Show</a></td>
+                    <td class="eventremove"><a href="/eventremovea/{{ event.eventCode }}/{{ event.shift }}">Remove</a></td>
                     <td class="eventdone"></td>
                 </tr>
             {% endfor %}
@@ -111,7 +111,7 @@
                     <td class="eventvalue">{{ event.value }}</td>
                     <td class="eventshow"></td>
                     <td class="eventremove"></td>
-                    <td class="eventundone"><a href="/eventundone/{{ event.eventCode }}/{{ event.shift }}">"Undone"</a></td>
+                    <td class="eventundone"><a href="/eventundonea/{{ event.eventCode }}/{{ event.shift }}">"Undone"</a></td>
                 </tr>
             {% endfor %}
         </tbody>

@@ -5,6 +5,8 @@
 {% endblock %}
 
 {% block main %}
+    <h1>Register Prefect</h1>
+    <hr>
     <form action="/adde" method="POST" name="addPrefect">
         <div class="form-group">
             <input autocomplete="off" autofocus class="form-control" name="name" placeholder="Full Name" type="text" onblur="autoUserPass(this.form)" />
@@ -19,6 +21,7 @@
             <input class="form-control" name="confirm" placeholder="Confirm Password" type="password" />
         </div>
         <div class="form-group">
+            Group: 
             <select class="form-control" name="leader">
                 <option value="" disabled>Group</option>
                 {% for leader in leaders %}
@@ -27,6 +30,7 @@
             </select>
         </div>
         <div class="form-group">
+            Grade: 
             <select class="form-control" name="grade">
                 <option value="" selected disabled>Grade</option>
                 <option value="11">11</option>

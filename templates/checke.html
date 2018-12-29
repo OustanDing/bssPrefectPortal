@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block main %}
-
+    <h1>Check In/Out</h1>
     <form action="" method="POST" name="check">
         <select class="form-control" name="event" onchange="window.location.href=this.value">
             <option value="" selected disabled>Select Event</option>
@@ -14,7 +14,7 @@
             {% endfor %}
         </select>
     </form>
-    <br>
+    <hr>
     <div style="visibility: {{ visibility }};">
         <!-- Not checked in Table -->
         <div class="row">

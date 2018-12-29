@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "layouta.html" %}
 
 {% block title %}
     Change Password
@@ -6,9 +6,9 @@
 
 {% block main %}
     <div align="center">
-        <form action="/change" method="POST">
+        <form action="/changea" method="POST">
             <div class="form-group">
-                <input autocomplete="off" autofocus class="form-control textbox" name="current" placeholder="Current Password" type="password"/>
+                <input autocomplete="off" autofocus class="form-control textbox" name="current" placeholder="Current Password" type="password" />
             </div>
             <div class="form-group">
                 <input class="form-control textbox" name="new" placeholder="New Password" type="password"/>
@@ -19,5 +19,5 @@
             <button class="btn btn-primary" type="submit">Change Password</button>
         </form>
     </div>
-
+    
 {% endblock %}

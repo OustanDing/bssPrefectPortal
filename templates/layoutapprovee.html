@@ -63,6 +63,7 @@
         {% endif %}
 
         <main class="container p-5">
+            <h1>Prefect Signups</h1>
             <select class="form-control" onchange="window.location.href=this.value">
                 <option selected disabled>Select datatable</option>
                 <option value="/requestede" {% if 'requestede' == currentaddress %}selected{% endif %}>Requested</option>
@@ -70,7 +71,7 @@
                 <option value="/confirmede" {% if 'confirmede' == currentaddress %}selected{% endif %}>Confirmed</option>
                 <option value="/declinede" {% if 'declinede' == currentaddress %}selected{% endif %}>Declined</option>
             </select>
-            <br>
+            <hr>
             <ul>
                 <li>To clear requests for an event, mark an event as DONE.</li>
                 <li>APPROVE - Select prefect for event</li>

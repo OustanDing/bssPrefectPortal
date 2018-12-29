@@ -1,0 +1,44 @@
+{% extends "layouta.html" %}
+
+{% block title %}
+	Dashboard
+{% endblock %}
+
+{% block main %}
+	<h1>Admin</h1>
+	<hr>
+	<table class="table table-striped" style="width:auto">
+		<tr>
+			<td>Registered Users</td>
+			<td>{{ info.registered }}</td>
+		</tr>
+		<tr>
+			<td>Executives</td>
+			<td>{{ info.execs }}</td>
+		</tr>
+		<tr>
+			<td>Prefects</td>
+			<td>{{ info.prefects }}</td>
+		</tr>
+		<tr>
+			<td>Eligible for Certificate</td>
+			<td>{{ info.cert }}</td>
+		</tr>
+		<tr>
+			<td>Eligible for Executive Position</td>
+			<td>{{ info.eliexec }}</td>
+		</tr>
+	</table>
+	<hr>
+	<h3>Contacts</h3>
+	<p>
+		In case of any questions or concerns, please contact one of the following:
+		<ul>
+			<li>Oustan Ding: oustan10@gmail.com</li>
+			<li>David Tuck: </li>
+			<li>Richard Zhu: </li>
+			<li>Nicholas Chung-Hun: </li>
+		</ul>
+	</p>
+	
+{% endblock %}
