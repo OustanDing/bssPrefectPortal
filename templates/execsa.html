@@ -5,7 +5,14 @@
 {% endblock %}
 
 {% block main %}
-    <h1>Executives</h1>
+    <div class="row" style="margin-bottom: -15px">
+        <div class="col-md-8">
+            <h1>Executives ({{ execs|length }})</h1>
+        </div>
+        <div class="col-md-4 text-right bottom-align-text" style="padding-top: 5px">
+            <a href="/addexeca" class="justify-content-right btn btn-primary align-bottom">Add</a>
+        </div>
+    </div>
     <hr>
     <table class="table table-striped text-left" style="width:auto">
         <tbody>

@@ -1,0 +1,33 @@
+{% extends "layouta.html" %}
+
+{% block title %}
+    Add Exec
+{% endblock %}
+
+{% block main %}
+    <h1>Register Executive</h1>
+    <hr>
+    <form action="/addexeca" method="POST" name="addExec">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="name" placeholder="Full Name" type="text" onblur="autoUserPass(this.form)" />
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="username" placeholder="Username (firstname.lastname by default)" type="text" />
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="password" placeholder="Password (1234 by default)" type="password" />
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="confirm" placeholder="Confirm Password" type="password" />
+        </div>
+        <div class="form-group">
+            Grade: 
+            <select class="form-control" name="grade">
+                <option value="" disabled>Grade</option>
+                <option value="11">11</option>
+                <option value="12" selected>12</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Add</button>
+    </form>
+{% endblock %}

@@ -154,10 +154,10 @@ def editexeca(execId):
         return redirect('/editexeca/' + execId)
 
 # DELETE AN EXEC
-@app.route('/deleteexeca/<execId>')
+@app.route('/deleteexeca/<prefectId>')
 @login_required
 @checkPositionPermission("Admin", "login")
-def deleteExec(execId):
+def deleteExec(prefectId):
     db.execute('DELETE FROM users WHERE id = ?', (prefectId,))
     db.execute('DELETE FROM signup WHERE id = ?', (prefectId,))
     db.execute('DELETE FROM completed WHERE id = ?', (prefectId,))
@@ -167,18 +167,81 @@ def deleteExec(execId):
 
     return redirect(url_for('execsa'))
 
-# RESET EXEC PASSWORD
-@app.route('/resetPass/<execId>')
+# RESET EXEC/PREFECT PASSWORD
+@app.route('/resetPassa/<Id>/<redirectaddress>')
 @login_required
 @checkPositionPermission("Admin", "login")
-def resetPassa(execId):
+def resetPassa(Id, redirectaddress):
     db.execute('UPDATE users SET hash = ? WHERE id = ?', (
         generate_password_hash('1234'),
-        execId
+        Id
     ))
     conn.commit()
 
-    return redirect(url_for('execsa'))
+    flash('Password reset!')
+    return redirect('/' + redirectaddress)
+
+    '''
+    if redirect == 'prefectsa':
+        flash('Password reset!')
+        return redirect(url_for('prefectsa'))
+    else:
+        flash('Password reset!')
+        return redirect(url_for('execsa'))
+    '''
+
+# ADD EXEC
+@app.route('/addexeca', methods=['GET', 'POST'])
+@login_required
+@checkPositionPermission('Admin', 'login')
+def addexeca():
+    if request.method == 'GET':
+        return render_template('addexeca.html')
+
+    else:
+        db.execute('SELECT username FROM users')
+        registered = db.fetchall()
+        registeredUsers = []
+
+        for username in registered:
+            registeredUsers.append(username[0])
+
+        # Check that name is not blank
+        if not request.form.get('name'):
+            flash('Name cannot be blank')
+            return redirect(url_for('addexeca'))
+
+        # Check that username is not blank
+        elif not request.form.get('username'):
+            flash('Username cannot be blank')
+            return redirect(url_for('addexeca'))
+
+        # Check that password is not blank
+        elif not request.form.get('password'):
+            flash('Password cannot be blank')
+            return redirect(url_for('addexeca'))
+
+        # Check that username is not already in system
+        elif request.form.get('username') in registeredUsers:
+            flash('Username already exists! Try a different username.')
+            return redirect(url_for('addexeca'))
+
+        # Check that password and confirmation match
+        elif request.form.get('password') != request.form.get('confirm'):
+            flash('Password and confirmation do not match')
+            return redirect(url_for('addexeca'))
+
+        db.execute('INSERT INTO users (username, name, hash, grade, leader, position) VALUES (?, ?, ?, ?, ?, ?)', (
+            request.form.get('username'),
+            request.form.get('name'),
+            generate_password_hash(request.form.get('password')),
+            request.form.get('grade'),
+            request.form.get('name').split(' ')[0],
+            'Executive'))
+        conn.commit()
+
+        flash('Registered!')
+        return redirect(url_for('addexeca'))
 
 # ------------------------------------------------------------------------------------------------------
 
@@ -320,6 +383,77 @@ def editprefecta(prefectId):
 
         flash('Updated!')
         return redirect('/editprefecta/' + prefectId)
+
+# DELETE A PREFECT
+@app.route('/deleteprefecta/<prefectId>')
+@login_required
+@checkPositionPermission("Admin", "login")
+def deletePrefecta(prefectId):
+    db.execute('DELETE FROM users WHERE id = ?', (prefectId,))
+    db.execute('DELETE FROM signup WHERE id = ?', (prefectId,))
+    db.execute('DELETE FROM completed WHERE id = ?', (prefectId,))
+    db.execute('DELETE FROM requested WHERE id = ?', (prefectId,))
+    db.execute('DELETE FROM declined WHERE id = ?', (prefectId,))
+    conn.commit()
+
+    return redirect(url_for('prefectsa'))
+
+# ADD PREFECT
+@app.route('/addprefecta', methods=['GET', 'POST'])
+@login_required
+@checkPositionPermission('Admin', 'login')
+def addprefecta():
+    if request.method == 'GET':
+        db.execute('SELECT leader FROM users WHERE position = "Executive"')
+        leaderData = db.fetchall()
+
+        leaders = [leader[0] for leader in leaderData]
+
+        return render_template('addprefecta.html', leaders=leaders)
+
+    else:
+        db.execute('SELECT username FROM users')
+        registered = db.fetchall()
+        registeredUsers = []
+
+        for username in registered:
+            registeredUsers.append(username[0])
+
+        # Check that name is not blank
+        if not request.form.get('name'):
+            flash('Name cannot be blank')
+            return redirect(url_for('addprefecta'))
+
+        # Check that username is not blank
+        elif not request.form.get('username'):
+            flash('Username cannot be blank')
+            return redirect(url_for('addprefecta'))
+
+        # Check that password is not blank
+        elif not request.form.get('password'):
+            flash('Password cannot be blank')
+            return redirect(url_for('addprefecta'))
+
+        # Check that username is not already in system
+        elif request.form.get('username') in registeredUsers:
+            flash('Username already exists! Try a different username.')
+            return redirect(url_for('addprefecta'))
+
+        # Check that password and confirmation match
+        elif request.form.get('password') != request.form.get('confirm'):
+            flash('Password and confirmation do not match')
+            return redirect(url_for('addprefecta'))
+
+        db.execute('INSERT INTO users (username, name, hash, grade, leader) VALUES (?, ?, ?, ?, ?)', (
+            request.form.get('username'),
+            request.form.get('name'),
+            generate_password_hash(request.form.get('password')),
+            request.form.get('grade'),
+            request.form.get('leader')))
+        conn.commit()
+
+        flash('Registered!')
+        return redirect(url_for('addprefecta'))
 
 # ------------------------------------------------------------------------------------------------------
 
@@ -1158,6 +1292,7 @@ def resetPass(prefectId):
     ))
     conn.commit()
 
+    flash('Password reset!')
     return redirect(url_for('indexe'))
 
 # ------------------------------------------------------------------------------------------------------
