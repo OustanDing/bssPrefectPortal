@@ -466,26 +466,29 @@ def eventsa():
         db.execute('SELECT * FROM events')
         eventData = db.fetchall()
 
-        visible = [{
+        visible = sorted([{
             'eventName': event[0],
             'eventCode': event[1],
             'shift': event[2],
             'value': event[3],
-        } for event in eventData if event[4] == 'yes' and event[5] != 'yes']
+            'date': event[6]
+        } for event in eventData if event[4] == 'yes' and event[5] != 'yes'], key=itemgetter('date'), reverse=True)
 
-        invisible = [{
+        invisible = sorted([{
             'eventName': event[0],
             'eventCode': event[1],
             'shift': event[2],
             'value': event[3],
-        } for event in eventData if event[4] == 'no' and event[5] != 'yes']
+            'date': event[6]
+        } for event in eventData if event[4] == 'no' and event[5] != 'yes'], key=itemgetter('date'), reverse=True)
 
-        finished = [{
+        finished = sorted([{
             'eventName': event[0],
             'eventCode': event[1],
             'shift': event[2],
             'value': event[3],
-        } for event in eventData if event[4] == 'no' and event[5] == 'yes']
+            'date': event[6]
+        } for event in eventData if event[4] == 'no' and event[5] == 'yes'], key=itemgetter('date'), reverse=True)
 
         totalVisible = len(visible)
         totalInvisible = len(invisible)
@@ -498,11 +501,15 @@ def eventsa():
     else:
         if not request.form.get('name'):
             flash('Event name cannot be blank')
-            return redirect(url_for('eventse'))
+            return redirect(url_for('eventsa'))
+
+        elif not request.form.get('date'):
+            flash('Date cannot be blank')
+            return redirect(url_for('eventsa'))
 
         elif not request.form.get('shift1'):
             flash('Shift 1 value cannot be blank')
-            return redirect(url_for('eventse'))
+            return redirect(url_for('eventsa'))
 
         # Get new eventCode
         db.execute('SELECT eventCode FROM events')
@@ -512,58 +519,58 @@ def eventsa():
 
         if request.form.get('shift1') and request.form.get('shift2') and request.form.get('shift3'):
             if request.form.get('visible'):
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
                            (request.form.get('name'), newCode, 3,
-                            float(request.form.get('shift1')) + float(request.form.get('shift2')), 'yes')
+                            float(request.form.get('shift1')) + float(request.form.get('shift2')), 'yes', request.form.get('date'))
                            )
                 conn.commit()
             else:
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
                            (request.form.get('name'), newCode, 3,
-                            float(request.form.get('shift1')) + float(request.form.get('shift2')), 'no')
+                            float(request.form.get('shift1')) + float(request.form.get('shift2')), 'no', request.form.get('date'))
                            )
                 conn.commit()
         elif request.form.get('shift1') and request.form.get('shift2'):
             if request.form.get('visible'):
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes', request.form.get('date'))
                            )
                 conn.commit()
             else:
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no', request.form.get('date'))
                            )
                 conn.commit()
         elif request.form.get('shift1') and request.form.get('shift3'):
             flash('Cannot input value for Both Shifts without value for Shift 2')
-            return redirect(url_for('eventse'))
+            return redirect(url_for('eventsa'))
         elif request.form.get('shift1'):
             if request.form.get('visible'):
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes', request.form.get('date'))
                            )
                 conn.commit()
             else:
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no', request.form.get('date'))
                            )
                 conn.commit()
 
@@ -1306,26 +1313,29 @@ def eventse():
         db.execute('SELECT * FROM events')
         eventData = db.fetchall()
 
-        visible = [{
+        visible = sorted([{
             'eventName': event[0],
             'eventCode': event[1],
             'shift': event[2],
             'value': event[3],
-        } for event in eventData if event[4] == 'yes' and event[5] != 'yes']
+            'date': event[6]
+        } for event in eventData if event[4] == 'yes' and event[5] != 'yes'], key=itemgetter('date'), reverse=True)
 
-        invisible = [{
+        invisible = sorted([{
             'eventName': event[0],
             'eventCode': event[1],
             'shift': event[2],
             'value': event[3],
-        } for event in eventData if event[4] == 'no' and event[5] != 'yes']
+            'date': event[6]
+        } for event in eventData if event[4] == 'no' and event[5] != 'yes'], key=itemgetter('date'), reverse=True)
 
-        finished = [{
+        finished = sorted([{
             'eventName': event[0],
             'eventCode': event[1],
             'shift': event[2],
             'value': event[3],
-        } for event in eventData if event[4] == 'no' and event[5] == 'yes']
+            'date': event[6]
+        } for event in eventData if event[4] == 'no' and event[5] == 'yes'], key=itemgetter('date'), reverse=True)
 
         totalVisible = len(visible)
         totalInvisible = len(invisible)
@@ -1340,6 +1350,10 @@ def eventse():
             flash('Event name cannot be blank')
             return redirect(url_for('eventse'))
 
+        elif not request.form.get('date'):
+            flash('Date cannot be blank')
+            return redirect(url_for('eventse'))
+
         elif not request.form.get('shift1'):
             flash('Shift 1 value cannot be blank')
             return redirect(url_for('eventse'))
@@ -1352,44 +1366,44 @@ def eventse():
 
         if request.form.get('shift1') and request.form.get('shift2') and request.form.get('shift3'):
             if request.form.get('visible'):
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
                            (request.form.get('name'), newCode, 3,
-                            float(request.form.get('shift1')) + float(request.form.get('shift2')), 'yes')
+                            float(request.form.get('shift1')) + float(request.form.get('shift2')), 'yes', request.form.get('date'))
                            )
                 conn.commit()
             else:
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
                            (request.form.get('name'), newCode, 3,
-                            float(request.form.get('shift1')) + float(request.form.get('shift2')), 'no')
+                            float(request.form.get('shift1')) + float(request.form.get('shift2')), 'no', request.form.get('date'))
                            )
                 conn.commit()
         elif request.form.get('shift1') and request.form.get('shift2'):
             if request.form.get('visible'):
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes', request.form.get('date'))
                            )
                 conn.commit()
             else:
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'no', request.form.get('date'))
                            )
                 conn.commit()
         elif request.form.get('shift1') and request.form.get('shift3'):
@@ -1397,13 +1411,13 @@ def eventse():
             return redirect(url_for('eventse'))
         elif request.form.get('shift1'):
             if request.form.get('visible'):
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes', request.form.get('date'))
                            )
                 conn.commit()
             else:
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible) VALUES (?, ?, ?, ?, ?)',
-                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no')
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
+                           (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'no', request.form.get('date'))
                            )
                 conn.commit()
 
@@ -2528,7 +2542,7 @@ def events():
         'shift': event[2],
         'value': event[3],
         'code': event[1]
-    } for event in registeredEvents]
+    } for event in registeredEvents if lookup(event[1], event[2])['done'] == 'no']
 
     db.execute('SELECT * FROM requested WHERE id = ?', (session['user_id'],))
     requestedEvents = db.fetchall()
@@ -2538,7 +2552,7 @@ def events():
         'shift': event[2],
         'value': event[3],
         'code': event[1]
-    } for event in requestedEvents]
+    } for event in requestedEvents if lookup(event[1], event[2])['done'] == 'no' and lookup(event[1], event[2])['visible'] == 'yes']
 
     # Get completed events
     db.execute('SELECT * FROM completed WHERE id = ?', (session['user_id'],))
@@ -2560,8 +2574,7 @@ def events():
         'value': event[3],
         'code': event[1]
     } for event in availableEvents if
-        event[1] not in [event[1] for event in registeredEvents] and event[1] not in [event[1] for event in
-                                                                                      requestedEvents] and event[
+        event[1] not in [event[1] for event in registeredEvents] and event[1] not in [event[1] for event in requestedEvents] and event[
             1] not in [event[1] for event in completedEvents]]
 
     total = 0

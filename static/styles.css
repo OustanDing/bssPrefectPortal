@@ -69,8 +69,12 @@ p {
     width: 45%;
 }
 
+.eventdate {
+    width: 15%;
+}
+
 .eventname {
-    width: 50%;
+    width: 35%;
 }
 
 .eventshift, .eventvalue, .eventhide, .eventremove, .eventdone, .eventshow {

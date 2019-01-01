@@ -45,3 +45,20 @@ function autoUserPass(form) {
     }
 
 }
+
+function formatDate(form) {
+    inputDate = form.date.value;
+    if (inputDate.length == 5) {
+        if (!isNaN(inputDate.charAt(4))) {
+            parts = [inputDate.slice(0,4), inputDate.slice(4,5)];
+            fDate = parts[0] + "-" + parts[1];
+            form.date.value = fDate;
+        }
+    } else if (inputDate.length == 8) {
+        if (!isNaN(inputDate.charAt(7))) {
+            parts = [inputDate.slice(0,7), inputDate.slice(7,8)];
+            fDate = parts[0] + "-" + parts[1];
+            form.date.value = fDate;
+        }
+    }
+}

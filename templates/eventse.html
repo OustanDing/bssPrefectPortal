@@ -8,10 +8,18 @@
     <h4>Add an event</h4>
     <form action="/eventse" method="POST">
         Name: <input autocomplete="off" autofocus class="form-control" type="text" name="name" placeholder="Event Name" ><br>
+        Date (YYYYMMDD): <input autocomplete="off" class="form-control" type="text" name="date" placeholder="Event Date" oninput="formatDate(this.form)"><br>
         Shifts:
         <br>
-        <input autocomplete="off" class="form-control" type="text" name="shift1" placeholder="Shift 1 Event Value" ><br>
-        <input autocomplete="off" class="form-control" type="text" name="shift2" placeholder="Shift 2 Event Value (Optional)" ><br>
+        <div class="row">
+            <div class="col-md-6">
+                <input autocomplete="off" class="form-control" type="text" name="shift1" placeholder="Shift 1 Event Value" >
+            </div>
+            <div class="col-md-6">
+                <input autocomplete="off" class="form-control" type="text" name="shift2" placeholder="Shift 2 Event Value (Optional)" >
+            </div>
+        </div>
+        <br>      
         Enable Both Shifts?
         <div class="checked">
             <label><input type="checkbox" name="shift3" value="yes"></label>
@@ -31,6 +39,7 @@
     <table class="table table-striped text-left">
         <thead>
             <tr>
+                <th class="eventdate">Date</th>
                 <th class="eventname">Name</th>
                 <th class="eventshift">Shift</th>
                 <th class="eventvalue">Value</th>
@@ -42,6 +51,7 @@
         <tbody>
             {% for event in visibleEvents %}
                 <tr>
+                    <td class="eventdate">{{ event.date }}</td>
                     <td class="eventname">{{ event.eventName }}</td>
                     <td class="eventshift">{% if event.shift == 3 %}
                         1 + 2
@@ -61,6 +71,7 @@
     <table class="table table-striped text-left">
         <thead>
             <tr>
+                <th class="eventdate">Date</th>
                 <th class="eventname">Name</th>
                 <th class="eventshift">Shift</th>
                 <th class="eventvalue">Value</th>
@@ -72,6 +83,7 @@
         <tbody>
             {% for event in invisibleEvents %}
                 <tr>
+                    <td class="eventdate">{{ event.date }}</td>
                     <td class="eventname">{{ event.eventName }}</td>
                     <td class="eventshift">{% if event.shift == 3 %}
                         1 + 2
@@ -91,6 +103,7 @@
     <table class="table table-striped text-left">
         <thead>
             <tr>
+                <th class="eventdate">Date</th>
                 <th class="eventname">Name</th>
                 <th class="eventshift">Shift</th>
                 <th class="eventvalue">Value</th>
@@ -102,6 +115,7 @@
         <tbody>
             {% for event in finishedEvents %}
                 <tr>
+                    <td class="eventdate">{{ event.date }}</td>
                     <td class="eventname">{{ event.eventName }}</td>
                     <td class="eventshift">{% if event.shift == 3 %}
                         1 + 2
