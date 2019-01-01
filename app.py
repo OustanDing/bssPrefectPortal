@@ -1471,23 +1471,6 @@ def eventdone(eventCode, shift):
     db.execute('UPDATE events SET visible = "no", done = "yes" WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
-    '''
-    db.execute('SELECT value FROM events WHERE eventCode = ? AND shift = ?', (eventCode, shift))
-    eventValue = db.fetchall()[0][0]
-
-    db.execute('SELECT id FROM signup WHERE eventCode = ? AND shift = ?', (eventCode, shift))
-    granted = db.fetchall()
-    grantedPrefects = [personId[0] for personId in granted]
-
-    for prefectId in grantedPrefects:
-        db.execute('SELECT credits FROM users WHERE id = ?', (prefectId,))
-        currentCredits = db.fetchall()[0][0]
-        db.execute('UPDATE users SET credits = ? WHERE id = ?', (currentCredits + eventValue, prefectId))
-        db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, prefectId))
-        db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id) VALUES (?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, eventValue, prefectId))
-    conn.commit()
-    '''
-
     return redirect(url_for('eventse'))
 
 # UNDO MARKING AN EVENT AS DONE
@@ -1538,7 +1521,7 @@ def requestede():
     pendingRequests = db.fetchall()
 
     for request in pendingRequests:
-        if lookup(request[1], request[2])['visible'] == 'yes' and lookup(request[1], request[2])['done'] == 'no':
+        if lookup(request[1], request[2])['done'] == 'no':
             db.execute('SELECT name FROM users WHERE id = ?', (request[4],))
             prefectName = db.fetchall()[0][0]
             db.execute('SELECT leader FROM users WHERE id = ?', (request[4],))
@@ -1574,7 +1557,7 @@ def requestedeByEvents():
     pendingRequests = db.fetchall()
 
     for request in pendingRequests:
-        if lookup(request[1], request[2])['visible'] == 'yes' and lookup(request[1], request[2])['done'] == 'no':
+        if lookup(request[1], request[2])['done'] == 'no':
             db.execute('SELECT name FROM users WHERE id = ?', (request[4],))
             prefectName = db.fetchall()[0][0]
             db.execute('SELECT leader FROM users WHERE id = ?', (request[4],))
@@ -1610,7 +1593,7 @@ def approvede():
     approvedRequests = db.fetchall()
 
     for request in approvedRequests:
-        if lookup(request[1], request[2])['visible'] == 'yes' and lookup(request[1], request[2])['done'] == 'no':
+        if lookup(request[1], request[2])['done'] == 'no':
             db.execute('SELECT name FROM users WHERE id = ?', (request[4],))
             prefectName = db.fetchall()[0][0]
             db.execute('SELECT leader FROM users WHERE id = ?', (request[4],))
@@ -1646,7 +1629,7 @@ def confirmede():
     confirmedRequests = db.fetchall()
 
     for request in confirmedRequests:
-        if lookup(request[1], request[2])['visible'] == 'yes' and lookup(request[1], request[2])['done'] == 'no':
+        if lookup(request[1], request[2])['done'] == 'no':
             db.execute('SELECT name FROM users WHERE id = ?', (request[4],))
             prefectName = db.fetchall()[0][0]
             db.execute('SELECT leader FROM users WHERE id = ?', (request[4],))
@@ -1682,7 +1665,7 @@ def declinede():
     declinedRequests = db.fetchall()
 
     for request in declinedRequests:
-        if lookup(request[1], request[2])['visible'] == 'yes' and lookup(request[1], request[2])['done'] == 'no':
+        if lookup(request[1], request[2])['done'] == 'no':
             db.execute('SELECT name FROM users WHERE id = ?', (request[4],))
             prefectName = db.fetchall()[0][0]
             db.execute('SELECT leader FROM users WHERE id = ?', (request[4],))

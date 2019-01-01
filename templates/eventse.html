@@ -81,7 +81,7 @@
                     <td class="eventvalue">{{ event.value }}</td>
                     <td class="eventshow"><a href="/eventshow/{{ event.eventCode }}/{{ event.shift }}">Show</a></td>
                     <td class="eventremove"><a href="/eventremove/{{ event.eventCode }}/{{ event.shift }}">Remove</a></td>
-                    <td class="eventdone"></td>
+                    <td class="eventdone"><a href="/eventdone/{{ event.eventCode }}/{{ event.shift }}">Done</a></td>
                 </tr>
             {% endfor %}
         </tbody>
