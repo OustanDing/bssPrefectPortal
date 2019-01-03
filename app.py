@@ -1450,6 +1450,10 @@ def eventshow(eventCode, shift):
 @checkPositionPermission("Executive", "index")
 def eventremove(eventCode, shift):
     db.execute('DELETE FROM events WHERE eventCode = ? AND shift = ?', (eventCode, shift))
+    db.execute('DELETE FROM requested WHERE eventCode = ? AND shift = ?', (eventCode, shift))
+    db.execute('DELETE FROM declined WHERE eventCode = ? AND shift = ?', (eventCode, shift))
+    db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ?', (eventCode, shift))
+    db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ?', (eventCode, shift))
     conn.commit()
 
     if shift == '1':
