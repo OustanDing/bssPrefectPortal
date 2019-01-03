@@ -1458,6 +1458,10 @@ def eventremove(eventCode, shift):
 
         if len(eventShift2) != 0:
             db.execute('DELETE FROM events WHERE eventCode = ? AND shift = ?', (eventCode, 2))
+            db.execute('DELETE FROM requested WHERE eventCode = ? AND shift = ?', (eventCode, 2))
+            db.execute('DELETE FROM declined WHERE eventCode = ? AND shift = ?', (eventCode, 2))
+            db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ?', (eventCode, 2))
+            db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ?', (eventCode, 2))
             conn.commit()
 
         db.execute('SELECT * FROM events WHERE eventCode = ? AND shift = ?', (eventCode, 3))
@@ -1465,6 +1469,10 @@ def eventremove(eventCode, shift):
 
         if len(eventShift3) != 0:
             db.execute('DELETE FROM events WHERE eventCode = ? AND shift = ?', (eventCode, 3))
+            db.execute('DELETE FROM requested WHERE eventCode = ? AND shift = ?', (eventCode, 3))
+            db.execute('DELETE FROM declined WHERE eventCode = ? AND shift = ?', (eventCode, 3))
+            db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ?', (eventCode, 3))
+            db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ?', (eventCode, 3))
             conn.commit()
 
     elif shift == '2':
@@ -1473,6 +1481,10 @@ def eventremove(eventCode, shift):
 
         if len(eventShift3) != 0:
             db.execute('DELETE FROM events WHERE eventCode = ? AND shift = ?', (eventCode, 3))
+            db.execute('DELETE FROM requested WHERE eventCode = ? AND shift = ?', (eventCode, 3))
+            db.execute('DELETE FROM declined WHERE eventCode = ? AND shift = ?', (eventCode, 3))
+            db.execute('DELETE FROM signup WHERE eventCode = ? AND shift = ?', (eventCode, 3))
+            db.execute('DELETE FROM completed WHERE eventCode = ? AND shift = ?', (eventCode, 3))
             conn.commit()
 
     return redirect(url_for('eventse'))
