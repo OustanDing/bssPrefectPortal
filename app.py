@@ -2286,7 +2286,7 @@ def edite():
             'email': request.form.get('email')
         }
 
-        if not request.form.get('home') or not request.form.get('cell') or not request.form.get('email'):
+        if not request.form.get('cell') or not request.form.get('email'):
             flash('Fields were left empty. Please try again.')
             return render_template('edite.html', prefect=prefect)
             # return redirect(url_for('edit'))
@@ -2737,7 +2737,7 @@ def edit():
             'email': request.form.get('email')
         }
 
-        if not request.form.get('home') or not request.form.get('cell') or not request.form.get('email'):
+        if not request.form.get('cell') or not request.form.get('email'):
             flash('Fields were left empty. Please try again.')
             return render_template('edit.html', prefect=prefect)
             # return redirect(url_for('edit'))
