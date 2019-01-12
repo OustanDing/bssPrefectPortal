@@ -914,25 +914,25 @@ def indexe():
         elif member[6] == 'Female':
             total['female'] += 1
 
-        if member[9] == 'XS' and member[6] == 'male':
+        if member[9] == 'XS' and member[6] == 'Male':
             total['malexs'] += 1
-        elif member[9] == 'S' and member[6] == 'male':
+        elif member[9] == 'S' and member[6] == 'Male':
             total['males'] += 1
-        elif member[9] == 'M' and member[6] == 'male':
+        elif member[9] == 'M' and member[6] == 'Male':
             total['malem'] += 1
-        elif member[9] == 'L' and member[6] == 'male':
+        elif member[9] == 'L' and member[6] == 'Male':
             total['malel'] += 1
-        elif member[9] == 'XL' and member[6] == 'male':
+        elif member[9] == 'XL' and member[6] == 'Male':
             total['malexl'] += 1
-        elif member[9] == 'XS' and member[6] == 'female':
+        elif member[9] == 'XS' and member[6] == 'Female':
             total['femalexs'] += 1
-        elif member[9] == 'S' and member[6] == 'female':
+        elif member[9] == 'S' and member[6] == 'Female':
             total['females'] += 1
-        elif member[9] == 'M' and member[6] == 'female':
+        elif member[9] == 'M' and member[6] == 'Female':
             total['femalem'] += 1
-        elif member[9] == 'L' and member[6] == 'female':
+        elif member[9] == 'L' and member[6] == 'Female':
             total['femalel'] += 1
-        elif member[9] == 'XL' and member[6] == 'female':
+        elif member[9] == 'XL' and member[6] == 'Female':
             total['femalexl'] += 1
 
         if member[5] == '11':
@@ -1032,25 +1032,25 @@ def indexe2():
         elif member[6] == 'Female':
             total['female'] += 1
 
-        if member[9] == 'XS' and member[6] == 'male':
+        if member[9] == 'XS' and member[6] == 'Male':
             total['malexs'] += 1
-        elif member[9] == 'S' and member[6] == 'male':
+        elif member[9] == 'S' and member[6] == 'Male':
             total['males'] += 1
-        elif member[9] == 'M' and member[6] == 'male':
+        elif member[9] == 'M' and member[6] == 'Male':
             total['malem'] += 1
-        elif member[9] == 'L' and member[6] == 'male':
+        elif member[9] == 'L' and member[6] == 'Male':
             total['malel'] += 1
-        elif member[9] == 'XL' and member[6] == 'male':
+        elif member[9] == 'XL' and member[6] == 'Male':
             total['malexl'] += 1
-        elif member[9] == 'XS' and member[6] == 'female':
+        elif member[9] == 'XS' and member[6] == 'Female':
             total['femalexs'] += 1
-        elif member[9] == 'S' and member[6] == 'female':
+        elif member[9] == 'S' and member[6] == 'Female':
             total['females'] += 1
-        elif member[9] == 'M' and member[6] == 'female':
+        elif member[9] == 'M' and member[6] == 'Female':
             total['femalem'] += 1
-        elif member[9] == 'L' and member[6] == 'female':
+        elif member[9] == 'L' and member[6] == 'Female':
             total['femalel'] += 1
-        elif member[9] == 'XL' and member[6] == 'female':
+        elif member[9] == 'XL' and member[6] == 'Female':
             total['femalexl'] += 1
 
         if member[5] == '11':
@@ -1150,25 +1150,25 @@ def indexe3(leader):
         elif member[6] == 'Female':
             total['female'] += 1
 
-        if member[9] == 'XS' and member[6] == 'male':
+        if member[9] == 'XS' and member[6] == 'Male':
             total['malexs'] += 1
-        elif member[9] == 'S' and member[6] == 'male':
+        elif member[9] == 'S' and member[6] == 'Male':
             total['males'] += 1
-        elif member[9] == 'M' and member[6] == 'male':
+        elif member[9] == 'M' and member[6] == 'Male':
             total['malem'] += 1
-        elif member[9] == 'L' and member[6] == 'male':
+        elif member[9] == 'L' and member[6] == 'Male':
             total['malel'] += 1
-        elif member[9] == 'XL' and member[6] == 'male':
+        elif member[9] == 'XL' and member[6] == 'Male':
             total['malexl'] += 1
-        elif member[9] == 'XS' and member[6] == 'female':
+        elif member[9] == 'XS' and member[6] == 'Female':
             total['femalexs'] += 1
-        elif member[9] == 'S' and member[6] == 'female':
+        elif member[9] == 'S' and member[6] == 'Female':
             total['females'] += 1
-        elif member[9] == 'M' and member[6] == 'female':
+        elif member[9] == 'M' and member[6] == 'Female':
             total['femalem'] += 1
-        elif member[9] == 'L' and member[6] == 'female':
+        elif member[9] == 'L' and member[6] == 'Female':
             total['femalel'] += 1
-        elif member[9] == 'XL' and member[6] == 'female':
+        elif member[9] == 'XL' and member[6] == 'Female':
             total['femalexl'] += 1
 
         if member[5] == '11':
