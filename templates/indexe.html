@@ -30,15 +30,15 @@
                 {% if currentGroup == 'all' %}
                     <div class="table-wrapper-scroll-y">
                 {% endif %}
-                <table class="table table-striped text-left" style="width:auto">
-                    <tbody>
-                        {% for prefect in prefects %}
-                            <tr><td>
-                                <a href="#" data-toggle="modal" data-target="#popup_{{ prefect.id }}">{{ prefect.name }}</a>
-                            </td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        <table class="table table-striped text-left" style="width:auto">
+                            <tbody>
+                                {% for prefect in prefects %}
+                                    <tr><td>
+                                        <a href="#" data-toggle="modal" data-target="#popup_{{ prefect.id }}">{{ prefect.name }}</a>
+                                    </td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                 {% if currentGroup == 'all' %}
                     </div>
                 {% endif %}

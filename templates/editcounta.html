@@ -1,0 +1,63 @@
+{% extends "layouta.html" %}
+
+{% block title %}
+    Edit Event Count
+{% endblock %}
+
+{% block main %}
+    <h1>Edit Event Count for: <u>{{ prefect.name }}</u></h1>
+    <h5>{{ prefect.credits }} events | {{ prefect.leader }}'s Group</h5>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Incomplete Events</h3>
+            <table class="table table-striped theader">
+                <thead>
+                    <tr>
+                        <th class="eventname2">Name</th>
+                        <th class="eventshift">Shift</th>
+                        <th class="eventvalue">Value</th>
+                        <th class="eventaddrem"></th>
+                    </tr>
+                </thead>
+            </table>
+            <div class="table-wrapper-scroll-y theader">
+                <table class="table table-striped">
+                    {% for event in incomplete %}
+                        <tr>
+                            <td class="eventname2">{{ event.eventName }}</td>
+                            <td class="eventshift">{{ event.shift }}</td>
+                            <td class="eventvalue">{{ event.value }}</td>
+                            <td class="eventaddrem"><a href="/addEvent/{{ prefect.id }}/{{ event.eventCode }}/{{ event.shift }}">Add</a></td>
+                        </tr>
+                    {% endfor %}                    
+                </table>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h3>Completed Events ({{ prefect.credits }})</h3>
+            <table class="table table-striped theader">
+                <thead>
+                    <th class="eventname2">Name</th>
+                    <th class="eventshift">Shift</th>
+                    <th class="eventvalue">Value</th>
+                    <th class="eventaddrem"></th>
+                </thead>
+            </table>
+            <div class="table-wrapper-scroll-y theader">
+                <table class="table table-striped">
+                    {% for event in completed %}
+                        <tr>
+                            <td class="eventname2">{{ event.eventName }}</td>
+                            <td class="eventshift">{{ event.shift }}</td>
+                            <td class="eventvalue">{{ event.value }}</td>
+                            <td class="eventaddrem"><a href="/remEvent/{{ prefect.id }}/{{ event.eventCode }}/{{ event.shift }}">Remove</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        
+    </div>
+
+
+{% endblock %}

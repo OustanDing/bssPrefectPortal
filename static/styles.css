@@ -81,6 +81,15 @@ p {
     width: 10%;
 }
 
+.eventname2 {
+    width: 60%
+}
+
+.eventaddrem {
+    width: 20%;
+    text-align: center;
+}
+
 .checkname {
     width: 35%;
 }
@@ -102,4 +111,9 @@ p {
     max-height: 460px;
     overflow-y: auto;
     -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+.theader {
+    margin-top: 0;
+    margin-bottom: 0;
 }

@@ -71,7 +71,10 @@
                             </tr>
                             <tr>
                                 <td class="category">Events</td>
-                                <td>{{ prefect.credits }}</td>
+                                <td>
+                                    {{ prefect.credits }}
+                                    (<a href="/editCount/{{ prefect.id }}" class="text-xs-right">Change</a>)
+                                </td>
                             </tr>
                             <tr>
                                 <td class="category">Gender</td>

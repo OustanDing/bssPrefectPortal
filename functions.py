@@ -3,7 +3,7 @@ import requests, urllib.parse, sqlite3
 from flask import *
 from functools import wraps
 
-conn = sqlite3.connect('/home/bssprefectportal/app/prefects.db', check_same_thread=False)
+conn = sqlite3.connect('prefects.db', check_same_thread=False)
 db = conn.cursor()
 
 
@@ -45,7 +45,8 @@ def lookup(code, shift):
         'shift': eventInfo[0][2],
         'value': eventInfo[0][3],
         'visible': eventInfo[0][4],
-        'done': eventInfo[0][5]
+        'done': eventInfo[0][5],
+        'date': eventInfo[0][6]
     }
 
     return info

@@ -32,7 +32,7 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_TYPE'] = 'filesystem'
 
 # Connecting to prefects.db
-conn = sqlite3.connect('/home/bssprefectportal/app/prefects.db', check_same_thread=False)
+conn = sqlite3.connect('prefects.db', check_same_thread=False)
 db = conn.cursor()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -454,6 +454,81 @@ def addprefecta():
 
         flash('Registered!')
         return redirect(url_for('addprefecta'))
+
+# EDIT EVENT COUNT (MAIN PAGE)
+@app.route('/editCount/<prefectId>')
+@login_required
+@checkPositionPermission('Admin', 'login')
+def editCount(prefectId):
+    db.execute('SELECT * FROM users WHERE id = ?', (prefectId,))
+    info = db.fetchone()
+
+    db.execute('SELECT * FROM completed WHERE id = ?', (prefectId,))
+    completedEvents = db.fetchall()
+
+    db.execute('SELECT * FROM events')
+    allEvents = db.fetchall()
+
+    completed = []
+    completedIds = []
+    incomplete = []
+
+    for event in completedEvents:
+        completed.append({
+            'eventName': event[0],
+            'eventCode': event[1],
+            'shift': event[2],
+            'value': event[3],
+            'date': lookup(event[1], event[2])['date']
+            })
+
+        completedIds.append(event[1])
+
+    completed = sorted(completed, key=itemgetter('date'), reverse=True)
+
+    for event in allEvents:
+        if event[1] not in completedIds:
+            incomplete.append({
+                'eventName': event[0],
+                'eventCode': event[1],
+                'shift': event[2],
+                'value': event[3],
+                'date': event[6]
+                })
+    incomplete = sorted(incomplete, key=itemgetter('date'), reverse=True)
+
+    prefect = {
+        'id': prefectId,
+        'name': info[2],
+        'credits': info[4],
+        'leader': info[8]
+    }
+
+    return render_template('editcounta.html', prefect=prefect, incomplete=incomplete, completed=completed)
+
+# ADD EVENT TO COMPLETED
+@app.route('/addEvent/<prefectId>/<eventCode>/<shift>')
+@login_required
+@checkPositionPermission('Admin', 'login')
+def addEvent(prefectId, eventCode, shift):
+    db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)', (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], prefectId, None))
+    db.execute('SELECT credits FROM users WHERE id = ?', (prefectId,))
+    currentCredits = db.fetchone()[0]
+    db.execute('UPDATE users SET credits = ? WHERE id = ?', (currentCredits + lookup(eventCode, shift)['value'], prefectId))
+    
+    return redirect(url_for('editCount', prefectId=prefectId))
+
+# REMOVE EVENT FROM COMPLETED
+@app.route('/remEvent/<prefectId>/<eventCode>/<shift>')
+@login_required
+@checkPositionPermission('Admin', 'login')
+def remEvent(prefectId, eventCode, shift):
+    db.execute('DELETE FROM completed WHERE id = ? AND eventCode = ? AND shift = ?', (prefectId, eventCode, shift))
+    db.execute('SELECT credits FROM users WHERE id = ?', (prefectId,))
+    currentCredits = db.fetchone()[0]
+    db.execute('UPDATE users SET credits = ? WHERE id = ?', (currentCredits - lookup(eventCode, shift)['value'], prefectId))
+    
+    return redirect(url_for('editCount', prefectId=prefectId))
 
 # ------------------------------------------------------------------------------------------------------
 
