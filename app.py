@@ -466,7 +466,7 @@ def editCount(prefectId):
     db.execute('SELECT * FROM completed WHERE id = ?', (prefectId,))
     completedEvents = db.fetchall()
 
-    db.execute('SELECT * FROM events')
+    db.execute('SELECT * FROM events WHERE done = "yes"')
     allEvents = db.fetchall()
 
     completed = []
@@ -474,13 +474,14 @@ def editCount(prefectId):
     incomplete = []
 
     for event in completedEvents:
-        completed.append({
-            'eventName': event[0],
-            'eventCode': event[1],
-            'shift': event[2],
-            'value': event[3],
-            'date': lookup(event[1], event[2])['date']
-            })
+        if lookup(event[1], event[2])['done'] == 'yes':
+            completed.append({
+                'eventName': event[0],
+                'eventCode': event[1],
+                'shift': event[2],
+                'value': event[3],
+                'date': lookup(event[1], event[2])['date']
+                })
 
         completedIds.append(event[1])
 
