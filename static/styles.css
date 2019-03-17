@@ -102,6 +102,10 @@ p {
     width: 10%;
 }
 
+.requestedshift {
+    width: 8%;
+}
+
 .checkoption, .checkoption2 {
     width: 15%;
 }
