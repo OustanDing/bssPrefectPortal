@@ -28,7 +28,7 @@
                     <td>{{ eventRequest.prefect }}</td>
                     <td>{{ eventRequest.group }}</td>
                     <td>{{ eventRequest.credits }}</td>
-                    <td>{% if eventRequest.shift == 3 %}
+                    <td class="requestedshift">{% if eventRequest.shift == 3 %}
                         1 + 2
                     {% else %}
                         {{ eventRequest.shift }}
