@@ -595,13 +595,13 @@ def eventsa():
 
         if request.form.get('shift1') and request.form.get('shift2') and request.form.get('shift3'):
             if request.form.get('visible'):
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
                            (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
                            (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
                            (request.form.get('name'), newCode, 3,
                             float(request.form.get('shift1')) + float(request.form.get('shift2')), 'yes', request.form.get('date'))
                            )
