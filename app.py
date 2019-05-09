@@ -2725,11 +2725,12 @@ def contact():
     info = db.fetchall()
 
     for exec in info:
-        execs.append({
-            'name': exec[2],
-            'email': exec[13],
-            'cell': exec[12]
-            })
+        if exec[0] < 12:
+            execs.append({
+                'name': exec[2],
+                'email': exec[13],
+                'cell': exec[12]
+                })
 
     return render_template('contact.html', execs=execs)
 
