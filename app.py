@@ -36,7 +36,7 @@ conn = sqlite3.connect('/home/bssprefectportal/app/prefects.db', check_same_thre
 db = conn.cursor()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------------
-# ADMIN STUFF 
+# ADMIN STUFF
 # -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 # HOMEPAGE (ADMIN)
@@ -59,7 +59,7 @@ def indexa():
         registered += 1
         if user[14] == 'Executive':
             execs += 1
-        elif user[14] == 'Prefect': 
+        elif user[14] == 'Prefect':
             prefects += 1
         if user[4] >= 4:
             cert += 1
@@ -516,7 +516,7 @@ def addEvent(prefectId, eventCode, shift):
     db.execute('SELECT credits FROM users WHERE id = ?', (prefectId,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (currentCredits + lookup(eventCode, shift)['value'], prefectId))
-    
+
     return redirect(url_for('editCount', prefectId=prefectId))
 
 # REMOVE EVENT FROM COMPLETED
@@ -528,7 +528,7 @@ def remEvent(prefectId, eventCode, shift):
     db.execute('SELECT credits FROM users WHERE id = ?', (prefectId,))
     currentCredits = db.fetchone()[0]
     db.execute('UPDATE users SET credits = ? WHERE id = ?', (currentCredits - lookup(eventCode, shift)['value'], prefectId))
-    
+
     return redirect(url_for('editCount', prefectId=prefectId))
 
 # ------------------------------------------------------------------------------------------------------
@@ -899,7 +899,7 @@ def changea():
 
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------------
-# EXEC STUFF 
+# EXEC STUFF
 # -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 # HOMEPAGE (EXEC)
@@ -1801,7 +1801,7 @@ def declinede():
 def approve(eventCode, shift, id):
     db.execute('SELECT * FROM requested WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
     timestamp = db.fetchall()[0][5]
-    
+
     db.execute('DELETE FROM requested WHERE eventCode = ? AND shift = ? AND id = ?', (eventCode, shift, id))
     db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
                (lookup(eventCode, shift)['name'], eventCode, shift, lookup(eventCode, shift)['value'], id, timestamp))
@@ -2107,13 +2107,13 @@ def checkallout(eventCode):
 
     db.execute('SELECT * FROM signup')
     selected = db.fetchall()
-    
+
     for selection in selected:
         if int(selection[1]) == int(eventCode):
             tocheckout.append(selection)
-    
+
     db.execute('DELETE FROM signup WHERE eventCode = ?', (eventCode,))
-    for prefect in tocheckout: 
+    for prefect in tocheckout:
         db.execute('INSERT INTO completed (eventName, eventCode, shift, value, id, signuptime) VALUES (?, ?, ?, ?, ?, ?)',
                    (lookup(eventCode, prefect[2])['name'], eventCode, prefect[2], lookup(eventCode, prefect[2])['value'], prefect[4], prefect[6]))
         db.execute('SELECT credits FROM users WHERE id = ?', (prefect[4],))
@@ -2122,7 +2122,7 @@ def checkallout(eventCode):
             currentCredits + lookup(eventCode, prefect[2])['value'],
             prefect[4]))
     conn.commit()
-    
+
     return redirect(url_for('checkeventee', eventId=eventCode))
 
 # CHECK A PREFECT BACK IN (FROM BEING CHECKED OUT AKA UNDO CHECKOUT)
@@ -2158,7 +2158,7 @@ def checkbackinall(eventCode):
     selected = db.fetchall()
 
     db.execute('DELETE FROM completed WHERE eventCode = ?', (eventCode,))
-    for prefect in selected: 
+    for prefect in selected:
         db.execute('INSERT INTO signup (eventName, eventCode, shift, value, id, checkin, signuptime) VALUES (?, ?, ?, ?, ?, ?, ?)',
                    (lookup(eventCode, prefect[2])['name'], eventCode, prefect[2], lookup(eventCode, prefect[2])['value'], prefect[4], "yes", prefect[5]))
         db.execute('SELECT credits FROM users WHERE id = ?', (prefect[4],))
@@ -2167,7 +2167,7 @@ def checkbackinall(eventCode):
             currentCredits - lookup(eventCode, prefect[2])['value'],
             prefect[4]))
     conn.commit()
-    
+
     return redirect(url_for('checkeventee', eventId=eventCode))
 
 # MARK A PREFECT NOT CHECKED IN FROM CHECKED OUT (MOVE FROM BEING CHECKED OUT TO NOT EVEN BEING CHECKED IN)
@@ -2590,7 +2590,7 @@ def indexe():
 '''
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------------
-# PREFECT STUFF 
+# PREFECT STUFF
 # -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 # HOMEPAGE (PREFECT)
@@ -2725,12 +2725,11 @@ def contact():
     info = db.fetchall()
 
     for exec in info:
-        if exec[0] < 12:
-            execs.append({
-                'name': exec[2],
-                'email': exec[13],
-                'cell': exec[12]
-                })
+        execs.append({
+            'name': exec[2],
+            'email': exec[13],
+            'cell': exec[12]
+            })
 
     return render_template('contact.html', execs=execs)
 
