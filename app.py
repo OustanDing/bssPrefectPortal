@@ -57,9 +57,9 @@ def indexa():
 
     for user in users:
         registered += 1
-        if user[14] == 'Executive':
+        if user[15] == 'Executive':
             execs += 1
-        elif user[14] == 'Prefect':
+        elif user[15] == 'Prefect':
             prefects += 1
         if user[4] >= 4:
             cert += 1
@@ -94,14 +94,15 @@ def execsa():
             'username': exec[1],
             'name': exec[2],
             'credits': exec[4],
-            'gender': exec[6],
+            'gender': exec[7],
             'grade': exec[5],
-            'size': exec[9],
-            'email': exec[13],
-            'home': exec[11],
-            'cell': exec[12],
-            'dietary': exec[7],
-            'status': exec[10]
+            'size': exec[10],
+            'stuNum' : exec[6],
+            'email': exec[14],
+            'home': exec[12],
+            'cell': exec[13],
+            'dietary': exec[8],
+            'status': exec[11]
             })
 
     execs.sort(key=itemgetter('name'))
@@ -130,22 +131,23 @@ def editexeca(execId):
             'name': execInfo[0][2],
             'username': execInfo[0][1],
             'grade': execInfo[0][5],
-            'gender': execInfo[0][6],
-            'dietary': execInfo[0][7],
+            'stuNum' : execInfo[0][6],
+            'gender': execInfo[0][7],
+            'dietary': execInfo[0][8],
             'size': execInfo[0][9],
-            'status': execInfo[0][10],
-            'home': execInfo[0][11],
-            'cell': execInfo[0][12],
-            'email': execInfo[0][13]
+            'status': execInfo[0][11],
+            'home': execInfo[0][12],
+            'cell': execInfo[0][13],
+            'email': execInfo[0][14]
         }
 
         return render_template('editexeca.html', execs=execs, thisexec=thisexec,
                                visibility='visible')
     else:
         db.execute(
-            'UPDATE users SET name = ?, username = ?, grade = ?, gender = ?, dietary = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
+            'UPDATE users SET name = ?, username = ?, grade = ?, stuNum = ?, gender = ?, dietary = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
             (request.form.get('name'), request.form.get('username'), request.form.get('grade'),
-             request.form.get('gender'), request.form.get('dietary'),
+             request.form.get('stuNum'), request.form.get('gender'), request.form.get('dietary'),
              request.form.get('size'), request.form.get('status'), request.form.get('home'), request.form.get('cell'),
              request.form.get('email'), execId))
         conn.commit()
@@ -268,14 +270,15 @@ def prefectsa():
             ('username', member[1]),
             ('name', member[2]),
             ('credits', member[4]),
-            ('gender', member[6]),
+            ('gender', member[7]),
             ('grade', member[5]),
-            ('size', member[9]),
-            ('email', member[13]),
-            ('home', member[11]),
-            ('cell', member[12]),
-            ('dietary', member[7]),
-            ('status', member[10])
+            ('size', member[10]),
+            ('stuNum', member[6]),
+            ('email', member[14]),
+            ('home', member[12]),
+            ('cell', member[13]),
+            ('dietary', member[8]),
+            ('status', member[11])
         ])
 
         db.execute("SELECT * FROM completed WHERE id = ?", (member[0],))
@@ -316,14 +319,15 @@ def prefectsa2(leader):
             ('username', member[1]),
             ('name', member[2]),
             ('credits', member[4]),
-            ('gender', member[6]),
+            ('gender', member[7]),
             ('grade', member[5]),
-            ('size', member[9]),
-            ('email', member[13]),
-            ('home', member[11]),
-            ('cell', member[12]),
-            ('dietary', member[7]),
-            ('status', member[10])
+            ('size', member[10]),
+            ('stuNum', member[6]),
+            ('email', member[14]),
+            ('home', member[12]),
+            ('cell', member[13]),
+            ('dietary', member[8]),
+            ('status', member[11])
         ])
 
         db.execute("SELECT * FROM completed WHERE id = ?", (member[0],))
@@ -356,14 +360,15 @@ def editprefecta(prefectId):
             'name': prefectInfo[0][2],
             'username': prefectInfo[0][1],
             'grade': prefectInfo[0][5],
-            'gender': prefectInfo[0][6],
-            'dietary': prefectInfo[0][7],
-            'leader': prefectInfo[0][8],
-            'size': prefectInfo[0][9],
-            'status': prefectInfo[0][10],
-            'home': prefectInfo[0][11],
-            'cell': prefectInfo[0][12],
-            'email': prefectInfo[0][13]
+            'stuNum': prefectInfo[0][6],
+            'gender': prefectInfo[0][7],
+            'dietary': prefectInfo[0][8],
+            'leader': prefectInfo[0][9],
+            'size': prefectInfo[0][10],
+            'status': prefectInfo[0][11],
+            'home': prefectInfo[0][12],
+            'cell': prefectInfo[0][13],
+            'email': prefectInfo[0][14]
         }
 
         db.execute('SELECT leader FROM users WHERE position = "Executive"')
@@ -374,9 +379,9 @@ def editprefecta(prefectId):
         return render_template('editprefecta.html', leaders=leaders, prefect=prefect)
     else:
         db.execute(
-            'UPDATE users SET name = ?, username = ?, grade = ?, gender = ?, dietary = ?, leader = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
+            'UPDATE users SET name = ?, username = ?, grade = ?, stuNum = ?, gender = ?, dietary = ?, leader = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
             (request.form.get('name'), request.form.get('username'), request.form.get('grade'),
-             request.form.get('gender'), request.form.get('dietary'), request.form.get('leader'),
+             request.form.get('stuNum'), request.form.get('gender'), request.form.get('dietary'), request.form.get('leader'),
              request.form.get('size'), request.form.get('status'), request.form.get('home'), request.form.get('cell'),
              request.form.get('email'), prefectId))
         conn.commit()
@@ -502,7 +507,7 @@ def editCount(prefectId):
         'id': prefectId,
         'name': info[2],
         'credits': info[4],
-        'leader': info[8]
+        'leader': info[9]
     }
 
     return render_template('editcounta.html', prefect=prefect, incomplete=incomplete, completed=completed)
@@ -918,15 +923,15 @@ def indexe():
     db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],))
     creds = db.fetchall()
 
-    userGroup = creds[0][8]
+    userGroup = creds[0][9]
 
     db.execute('SELECT * FROM users WHERE leader = ? AND id != ?', (userGroup, session['user_id']))
     members = db.fetchall()
 
     prefect = dict([
         ('name', creds[0][2]),
-        ('position', creds[0][14]),
-        ('firstname', creds[0][8])
+        ('position', creds[0][15]),
+        ('firstname', creds[0][9])
     ])
 
     # Get current group
@@ -942,14 +947,15 @@ def indexe():
             ('username', member[1]),
             ('name', member[2]),
             ('credits', member[4]),
-            ('gender', member[6]),
+            ('gender', member[7]),
             ('grade', member[5]),
-            ('size', member[9]),
-            ('email', member[13]),
-            ('home', member[11]),
-            ('cell', member[12]),
-            ('dietary', member[7]),
-            ('status', member[10])
+            ('size', member[10]),
+            ('stuNum', member[6]),
+            ('email', member[14]),
+            ('home', member[12]),
+            ('cell', member[13]),
+            ('dietary', member[8]),
+            ('status', member[11])
         ])
 
         db.execute("SELECT * FROM completed WHERE id = ?", (member[0],))
@@ -1041,8 +1047,8 @@ def indexe2():
 
     prefect = dict([
         ('name', creds[0][2]),
-        ('position', creds[0][14]),
-        ('firstname', creds[0][8])
+        ('position', creds[0][15]),
+        ('firstname', creds[0][9])
     ])
 
     # Get current group ('all')
@@ -1060,14 +1066,15 @@ def indexe2():
             ('username', member[1]),
             ('name', member[2]),
             ('credits', member[4]),
-            ('gender', member[6]),
+            ('gender', member[7]),
             ('grade', member[5]),
-            ('size', member[9]),
-            ('email', member[13]),
-            ('home', member[11]),
-            ('cell', member[12]),
-            ('dietary', member[7]),
-            ('status', member[10])
+            ('size', member[10]),
+            ('stuNum' , member[6]),
+            ('email', member[14]),
+            ('home', member[12]),
+            ('cell', member[13]),
+            ('dietary', member[8]),
+            ('status', member[11])
         ])
 
         db.execute("SELECT * FROM completed WHERE id = ?", (member[0],))
@@ -1159,8 +1166,8 @@ def indexe3(leader):
 
     prefect = dict([
         ('name', creds[0][2]),
-        ('position', creds[0][14]),
-        ('firstname', creds[0][8])
+        ('position', creds[0][15]),
+        ('firstname', creds[0][9])
     ])
 
     # Get current group
@@ -1178,14 +1185,15 @@ def indexe3(leader):
             ('username', member[1]),
             ('name', member[2]),
             ('credits', member[4]),
-            ('gender', member[6]),
+            ('gender', member[7]),
             ('grade', member[5]),
-            ('size', member[9]),
-            ('email', member[13]),
-            ('home', member[11]),
-            ('cell', member[12]),
-            ('dietary', member[7]),
-            ('status', member[10])
+            ('size', member[10]),
+            ('stuNum', member[6]),
+            ('email', member[14]),
+            ('home', member[12]),
+            ('cell', member[13]),
+            ('dietary', member[8]),
+            ('status', member[11])
         ])
 
         db.execute("SELECT * FROM completed WHERE id = ?", (member[0],))
@@ -1278,6 +1286,7 @@ def editprefecte():
     prefect = {
         'name': None,
         'grade': None,
+        'stuNum': None,
         'gender': None,
         'dietary': None,
         'leader': None,
@@ -1321,14 +1330,15 @@ def editPrefectInfo(prefectId):
             'name': prefectInfo[0][2],
             'username': prefectInfo[0][1],
             'grade': prefectInfo[0][5],
-            'gender': prefectInfo[0][6],
-            'dietary': prefectInfo[0][7],
-            'leader': prefectInfo[0][8],
-            'size': prefectInfo[0][9],
-            'status': prefectInfo[0][10],
-            'home': prefectInfo[0][11],
-            'cell': prefectInfo[0][12],
-            'email': prefectInfo[0][13]
+            'stuNum': prefectInfo[0][6],
+            'gender': prefectInfo[0][7],
+            'dietary': prefectInfo[0][8],
+            'leader': prefectInfo[0][9],
+            'size': prefectInfo[0][10],
+            'status': prefectInfo[0][11],
+            'home': prefectInfo[0][12],
+            'cell': prefectInfo[0][13],
+            'email': prefectInfo[0][14]
         }
 
         db.execute('SELECT leader FROM users WHERE position = "Executive"')
@@ -1340,9 +1350,9 @@ def editPrefectInfo(prefectId):
                                visibility='visible')
     else:
         db.execute(
-            'UPDATE users SET name = ?, username = ?, grade = ?, gender = ?, dietary = ?, leader = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
+            'UPDATE users SET name = ?, username = ?, grade = ?, stuNum = ?, gender = ?, dietary = ?, leader = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
             (request.form.get('name'), request.form.get('username'), request.form.get('grade'),
-             request.form.get('gender'), request.form.get('dietary'), request.form.get('leader'),
+             request.form.get('stuNum'), request.form.get('gender'), request.form.get('dietary'), request.form.get('leader'),
              request.form.get('size'), request.form.get('status'), request.form.get('home'), request.form.get('cell'),
              request.form.get('email'), prefectId))
         conn.commit()
@@ -2293,14 +2303,15 @@ def profilee():
     prefect = dict([
         ('name', creds[0][2]),
         ('grade', creds[0][5]),
-        ('gender', creds[0][6]),
-        ('dietary', creds[0][7]),
-        ('group', creds[0][8]),
-        ('size', creds[0][9]),
-        ('status', creds[0][10]),
-        ('home', creds[0][11]),
-        ('cell', creds[0][12]),
-        ('email', creds[0][13])
+        ('stuNum', creds[0][6]),
+        ('gender', creds[0][7]),
+        ('dietary', creds[0][8]),
+        ('group', creds[0][9]),
+        ('size', creds[0][10]),
+        ('status', creds[0][11]),
+        ('home', creds[0][12]),
+        ('cell', creds[0][13]),
+        ('email', creds[0][14])
     ])
 
     return render_template('profilee.html', prefect=prefect)
@@ -2315,20 +2326,21 @@ def edite():
         db.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
         creds = db.fetchall()
 
-        if creds[0][14] == 'Prefect':
+        if creds[0][15] == 'Prefect':
             return redirect(url_for('edit'))
 
         prefect = dict([
             ('name', creds[0][2]),
             ('grade', creds[0][5]),
-            ('gender', creds[0][6]),
-            ('dietary', creds[0][7]),
-            ('group', creds[0][8]),
-            ('size', creds[0][9]),
-            ('status', creds[0][10]),
-            ('home', creds[0][11]),
-            ('cell', creds[0][12]),
-            ('email', creds[0][13])
+            ('stuNum', creds[0][6]),
+            ('gender', creds[0][7]),
+            ('dietary', creds[0][8]),
+            ('group', creds[0][9]),
+            ('size', creds[0][10]),
+            ('status', creds[0][11]),
+            ('home', creds[0][12]),
+            ('cell', creds[0][13]),
+            ('email', creds[0][14])
         ])
 
         return render_template('edite.html', prefect=prefect)
@@ -2341,18 +2353,20 @@ def edite():
         prefect = dict([
             ('name', creds[0][2]),
             ('grade', creds[0][5]),
-            ('gender', creds[0][6]),
-            ('dietary', creds[0][7]),
-            ('group', creds[0][8]),
-            ('size', creds[0][9]),
-            ('status', creds[0][10]),
-            ('home', creds[0][11]),
-            ('cell', creds[0][12]),
-            ('email', creds[0][13])
+            ('stuNum', creds[0][6]),
+            ('gender', creds[0][7]),
+            ('dietary', creds[0][8]),
+            ('group', creds[0][9]),
+            ('size', creds[0][10]),
+            ('status', creds[0][11]),
+            ('home', creds[0][12]),
+            ('cell', creds[0][13]),
+            ('email', creds[0][14])
         ])
 
         inputted = {
             'grade': request.form.get('grade'),
+            'stuNum' : request.form.get('stuNum'),
             'gender': request.form.get('gender'),
             'dietary': request.form.get('dietary'),
             'size': request.form.get('size'),
@@ -2372,8 +2386,8 @@ def edite():
             return render_template('edite.html', prefect=prefect)
 
         db.execute(
-            'UPDATE users SET grade = ?, gender = ?, dietary = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
-            (inputted['grade'], inputted['gender'], inputted['dietary'], inputted['size'], inputted['status'],
+            'UPDATE users SET grade = ?, stuNum = ?, gender = ?, dietary = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
+            (inputted['grade'], inputted['stuNum'], inputted['gender'], inputted['dietary'], inputted['size'], inputted['status'],
              inputted['home'], inputted['cell'], inputted['email'], session['user_id']))
         conn.commit()
 
@@ -2506,14 +2520,14 @@ def indexe():
     db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],))
     creds = db.fetchall()
 
-    userGroup = creds[0][8]
+    userGroup = creds[0][9]
 
     db.execute('SELECT * FROM users WHERE leader = ? AND id != ?', (userGroup, session['user_id']))
     members = db.fetchall()
 
     prefect = dict([
         ('name', creds[0][2]),
-        ('position', creds[0][14])
+        ('position', creds[0][15])
     ])
 
     prefects = []
@@ -2522,14 +2536,15 @@ def indexe():
         info = dict([
             ('name', member[2]),
             ('credits', member[4]),
-            ('gender', member[6]),
+            ('gender', member[7]),
             ('grade', member[5]),
-            ('size', member[9]),
-            ('email', member[13]),
-            ('home', member[11]),
-            ('cell', member[12]),
-            ('dietary', member[7]),
-            ('status', member[10])
+            ('size', member[10]),
+            ('stuNum', member[6]),
+            ('email', member[14]),
+            ('home', member[12]),
+            ('cell', member[13]),
+            ('dietary', member[8]),
+            ('status', member[11])
         ])
 
         db.execute("SELECT * FROM completed WHERE id = ?", (member[0],))
@@ -2613,9 +2628,9 @@ def index():
         ('name', creds[0][2]),
         ('credits', float(creds[0][4])),
         ('events', [(event[0], event[2], event[3]) for event in events]),
-        ('leader', creds[0][8]),
+        ('leader', creds[0][9]),
         ('registered', [(event[0], event[2], lookup(event[1], event[2])['value']) for event in future]),
-        ('position', creds[0][14])
+        ('position', creds[0][15])
     ])
 
     return render_template('index.html', prefect=prefect)
@@ -2725,11 +2740,12 @@ def contact():
     info = db.fetchall()
 
     for exec in info:
-        execs.append({
-            'name': exec[2],
-            'email': exec[13],
-            'cell': exec[12]
-            })
+        if exec[0] < 12 :
+            execs.append({
+                'name': exec[2],
+                'email': exec[13],
+                'cell': exec[12]
+                })
 
     return render_template('contact.html', execs=execs)
 
@@ -2747,14 +2763,15 @@ def profile():
     prefect = dict([
         ('name', creds[0][2]),
         ('grade', creds[0][5]),
-        ('gender', creds[0][6]),
-        ('dietary', creds[0][7]),
-        ('group', creds[0][8]),
-        ('size', creds[0][9]),
-        ('status', creds[0][10]),
-        ('home', creds[0][11]),
-        ('cell', creds[0][12]),
-        ('email', creds[0][13])
+        ('stuNum', creds[0][6]),
+        ('gender', creds[0][7]),
+        ('dietary', creds[0][8]),
+        ('group', creds[0][9]),
+        ('size', creds[0][10]),
+        ('status', creds[0][11]),
+        ('home', creds[0][12]),
+        ('cell', creds[0][13]),
+        ('email', creds[0][14])
     ])
 
     return render_template('profile.html', prefect=prefect)
@@ -2772,14 +2789,15 @@ def edit():
         prefect = dict([
             ('name', creds[0][2]),
             ('grade', creds[0][5]),
-            ('gender', creds[0][6]),
-            ('dietary', creds[0][7]),
-            ('group', creds[0][8]),
-            ('size', creds[0][9]),
-            ('status', creds[0][10]),
-            ('home', creds[0][11]),
-            ('cell', creds[0][12]),
-            ('email', creds[0][13])
+            ('stuNum', creds[0][6]),
+            ('gender', creds[0][7]),
+            ('dietary', creds[0][8]),
+            ('group', creds[0][9]),
+            ('size', creds[0][10]),
+            ('status', creds[0][11]),
+            ('home', creds[0][12]),
+            ('cell', creds[0][13]),
+            ('email', creds[0][14])
         ])
 
         return render_template('edit.html', prefect=prefect)
@@ -2792,18 +2810,20 @@ def edit():
         prefect = dict([
             ('name', creds[0][2]),
             ('grade', creds[0][5]),
-            ('gender', creds[0][6]),
-            ('dietary', creds[0][7]),
-            ('group', creds[0][8]),
-            ('size', creds[0][9]),
-            ('status', creds[0][10]),
-            ('home', creds[0][11]),
-            ('cell', creds[0][12]),
-            ('email', creds[0][13])
+            ('stuNum', creds[0][6]),
+            ('gender', creds[0][7]),
+            ('dietary', creds[0][8]),
+            ('group', creds[0][9]),
+            ('size', creds[0][10]),
+            ('status', creds[0][11]),
+            ('home', creds[0][12]),
+            ('cell', creds[0][13]),
+            ('email', creds[0][14])
         ])
 
         inputted = {
             'grade': request.form.get('grade'),
+            'stuNum': request.form.get('stuNum'),
             'gender': request.form.get('gender'),
             'dietary': request.form.get('dietary'),
             'size': request.form.get('size'),
@@ -2823,8 +2843,8 @@ def edit():
             return render_template('edit.html', prefect=prefect)
 
         db.execute(
-            'UPDATE users SET grade = ?, gender = ?, dietary = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
-            (inputted['grade'], inputted['gender'], inputted['dietary'], inputted['size'], inputted['status'],
+            'UPDATE users SET grade = ?, stuNum = ?, gender = ?, dietary = ?, size = ?, status = ?, home = ?, cell = ?, email = ? WHERE id = ?',
+            (inputted['grade'], inputted['stuNum'], inputted['gender'], inputted['dietary'], inputted['size'], inputted['status'],
              inputted['home'], inputted['cell'], inputted['email'], session['user_id']))
         conn.commit()
 
@@ -2921,11 +2941,11 @@ def login():
 
         session['user_id'] = rows[0][0]
 
-        if rows[0][14] == 'Prefect':
+        if rows[0][15] == 'Prefect':
             return redirect('/')
-        elif rows[0][14] == 'Executive':
+        elif rows[0][15] == 'Executive':
             return redirect('/indexe')
-        elif rows[0][14] == 'Admin':
+        elif rows[0][15] == 'Admin':
             return redirect('/indexa')
 
     else:
@@ -3059,6 +3079,7 @@ def viewe():
 
     return render_template('viewe.html', confirmed = confirmed)
 '''
+
 
 def errorhandler(e):
     '''Handle error'''
