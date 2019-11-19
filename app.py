@@ -1625,44 +1625,8 @@ def eventundone(eventCode, shift):
 def approvee():
     return render_template('approvee.html', currentaddress=None)
 
-# SHOW SIGNUP TABLE, SORT BY TIME
-@app.route('/requestede')
-@login_required
-@checkPositionPermission("Executive", "index")
-def requestede():
-    requested = []
-    totalreq = 0
-
-    db.execute('SELECT * FROM requested')
-    pendingRequests = db.fetchall()
-
-    for request in pendingRequests:
-        if lookup(request[1], request[2])['done'] == 'no':
-            db.execute('SELECT name FROM users WHERE id = ?', (request[4],))
-            prefectName = db.fetchall()[0][0]
-            db.execute('SELECT leader FROM users WHERE id = ?', (request[4],))
-            prefectGroup = db.fetchall()[0][0]
-            db.execute('SELECT credits FROM users WHERE id = ?', (request[4],))
-            prefectCredits = db.fetchall()[0][0]
-            requested.append({
-                'eventName': request[0],
-                'eventCode': request[1],
-                'prefect': prefectName,
-                'group': prefectGroup,
-                'credits': prefectCredits,
-                'shift': request[2],
-                'value': request[3],
-                'id': request[4],
-                'time': request[5]
-            })
-            totalreq += 1
-
-    requested = sorted(requested, key=itemgetter('time'))
-
-    return render_template('requestede.html', currentaddress='requestede', currentaddress2='byTime', totalreq=totalreq, requested=requested)
-
 # SHOW SIGNUP TABLE, SORT BY EVENT COUNT
-@app.route('/requestede/byEvents')
+@app.route('/requestede')
 @login_required
 @checkPositionPermission("Executive", "index")
 def requestedeByEvents():
@@ -1696,6 +1660,42 @@ def requestedeByEvents():
     requested = sorted(requested, key=itemgetter('credits', 'time'))
 
     return render_template('requestede.html', currentaddress='requestede', currentaddress2='byEvent', totalreq=totalreq, requested=requested)
+
+# SHOW SIGNUP TABLE, SORT BY TIME
+@app.route('/requestede/byTime')
+@login_required
+@checkPositionPermission("Executive", "index")
+def requestede():
+    requested = []
+    totalreq = 0
+
+    db.execute('SELECT * FROM requested')
+    pendingRequests = db.fetchall()
+
+    for request in pendingRequests:
+        if lookup(request[1], request[2])['done'] == 'no':
+            db.execute('SELECT name FROM users WHERE id = ?', (request[4],))
+            prefectName = db.fetchall()[0][0]
+            db.execute('SELECT leader FROM users WHERE id = ?', (request[4],))
+            prefectGroup = db.fetchall()[0][0]
+            db.execute('SELECT credits FROM users WHERE id = ?', (request[4],))
+            prefectCredits = db.fetchall()[0][0]
+            requested.append({
+                'eventName': request[0],
+                'eventCode': request[1],
+                'prefect': prefectName,
+                'group': prefectGroup,
+                'credits': prefectCredits,
+                'shift': request[2],
+                'value': request[3],
+                'id': request[4],
+                'time': request[5]
+            })
+            totalreq += 1
+
+    requested = sorted(requested, key=itemgetter('time'))
+
+    return render_template('requestede.html', currentaddress='requestede', currentaddress2='byTime', totalreq=totalreq, requested=requested)
 
 # SHOW APPROVED SIGNUPS TABLE
 @app.route('/approvede')
