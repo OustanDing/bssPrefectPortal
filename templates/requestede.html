@@ -7,8 +7,8 @@
 {% block main %}
     <h4>Pending Signups ({{ totalreq }})</h4>
     <select class="form-control" onchange="window.location.href=this.value">
-        <option value="/requestede" {% if 'byTime' == currentaddress2 %}selected{% endif %}>Sort by SIGNUP TIME</option>
-        <option value="/requestede/byEvents" {% if 'byEvent' == currentaddress2 %}selected{% endif %}>Sort by EVENT COUNT</option>
+        <option value="/requestede" {% if 'byEvent' == currentaddress2 %}selected{% endif %}>Sort by EVENT COUNT</option>
+        <option value="/requestede/byTime" {% if 'byTime' == currentaddress2 %}selected{% endif %}>Sort by SIGNUP TIME</option>
     </select>
     <br>
     <table class="table table-striped text-left">
