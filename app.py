@@ -1452,13 +1452,13 @@ def eventse():
 
         if request.form.get('shift1') and request.form.get('shift2') and request.form.get('shift3'):
             if request.form.get('visible'):
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
                            (request.form.get('name'), newCode, 1, request.form.get('shift1'), 'yes', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
                            (request.form.get('name'), newCode, 2, request.form.get('shift2'), 'yes', request.form.get('date'))
                            )
-                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?)',
+                db.execute('INSERT INTO events (eventName, eventCode, shift, value, visible, eventDate) VALUES (?, ?, ?, ?, ?, ?)',
                            (request.form.get('name'), newCode, 3,
                             float(request.form.get('shift1')) + float(request.form.get('shift2')), 'yes', request.form.get('date'))
                            )
@@ -1629,7 +1629,7 @@ def approvee():
 @app.route('/requestede')
 @login_required
 @checkPositionPermission("Executive", "index")
-def requestedeByEvents():
+def requestede():
     requested = []
     totalreq = 0
 
@@ -1665,7 +1665,7 @@ def requestedeByEvents():
 @app.route('/requestede/byTime')
 @login_required
 @checkPositionPermission("Executive", "index")
-def requestede():
+def requestedeByTime():
     requested = []
     totalreq = 0
 
