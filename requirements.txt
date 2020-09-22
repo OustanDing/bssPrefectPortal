@@ -25,7 +25,7 @@ psycopg2==2.7.5
 Pygments==2.2.0
 pyparsing==2.2.0
 python-dateutil==2.7.3
-python-engineio==2.2.0
+python-engineio==3.8.2.post1
 python-socketio==2.0.0
 pytz==2018.4
 requests==2.19.1
