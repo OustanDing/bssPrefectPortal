@@ -1,22 +1,17 @@
 # BSS Prefect Portal
-Designed by Oustan Ding, David Tuck
+BSS Prefect Portal is a web application built to enhance administrative workflow for Bayview Secondary School's Prefect Organization. 
 
-## Prefect Access
-### Dashboard
-Displays information regarding event count, completed events, and upcoming events
+## Main Features
+* **Dashboard** - Summary of prefect volunteering history and eligibility for certificate. Overview of executive's prefect group.
+* **Events** - Information about upcoming and completed events. Executives can approve prefect volunteering requests here.
+* **Files** - Straightforward administrative file- and form-sharing between executives and prefects.
+* **Check In/Out** - Event attendance tracking and automatic credit-assignment upon completion. 
+* **Prefect Registration** - Simple interface for executives to add prefects to their groups.
 
-### Events
-* **Registered Events** - Events that the prefect has been approved for
-* **Requested** - Events that the prefect has requested a shift for
-* **Available Events** - Upcoming events that the prefect can register for
-* **Completed Events** - Events that prefects have completed. Event credits have been awarded
+## Stack
+Flask + SQLite backend with a simple client built in HTML/CSS/JS.
 
-### Files
-Files that prefects can access
-
-### Contact
-Prefect executive contact information
-
-### Profile
-View prefect information. Click *Edit* to edit information
-
+## Contributors
+* Oustan Ding
+* David Tuck
+* Alan Qiao
